@@ -21,7 +21,13 @@
     "baseUrl": ".",
     "paths": {
       "@engine": ["packages/engine/src/index.ts"],
-      "@engine/*": ["packages/engine/src/*"]
+      "@engine/*": ["packages/engine/src/*"],
+      "@store": ["packages/store/src/index.ts"],
+      "@store/*": ["packages/store/src/*"],
+      "@registry": ["packages/registry/src/index.ts"],
+      "@registry/*": ["packages/registry/src/*"],
+      "@ingest": ["packages/ingest/src/index.ts"],
+      "@ingest/*": ["packages/ingest/src/*"]
     }
   },
   "include": ["packages", "tests"],

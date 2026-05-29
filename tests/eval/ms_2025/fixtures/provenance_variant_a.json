@@ -1,0 +1,30 @@
+{
+  "incident_name": "Marks & Spencer cyberattack — provenance probe A (SYNTHETIC)",
+  "framework": "CIS_v8",
+  "client_profile": null,
+  "_probe_note": "SYNTHETIC PROVENANCE-VARIANT FIXTURE. The provenance attached to each claim here is deliberately counterfactual and is NOT a statement about the real public record. Its only purpose is to verify the engine tiers a claim from its SUPPLIED provenance, not from latent knowledge of the M&S incident. See fixtures/GROUND_TRUTH.md §Provenance-variant pair. In variant A the provenance of the two claims is the inverse of variant B.",
+  "incident_sources": [
+    {
+      "id": "PVA-HD-PRESS",
+      "label": "[PROBE] Specialist press, unnamed sources — help-desk reset claim",
+      "independence_group": "G4",
+      "tier_ceiling": "REPORTED",
+      "proximity": "specialist-press-primary-unnamed-sources",
+      "primary": true,
+      "derivative_of": null,
+      "incentive_bias": "specialist press primary — single chain of unnamed sources",
+      "text": "Sources familiar with the matter told reporters that the attackers gained initial access by socially engineering the IT help desk into resetting an internal user's password (T1566.004 / T1656). This has not been officially confirmed."
+    },
+    {
+      "id": "PVA-NTDS-REG",
+      "label": "[PROBE — COUNTERFACTUAL] National regulator advisory — NTDS.dit claim",
+      "independence_group": "G1",
+      "tier_ceiling": "CONFIRMED",
+      "proximity": "official-statement",
+      "primary": true,
+      "derivative_of": null,
+      "incentive_bias": "regulator — authoritative; floor not full picture",
+      "text": "A national cyber-security regulator advisory states, as a confirmed finding of its investigation, that the attackers obtained a copy of the NTDS.dit Active Directory database during the intrusion."
+    }
+  ]
+}

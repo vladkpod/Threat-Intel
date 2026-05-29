@@ -13,36 +13,47 @@
   "incident_sources": [
     {
       "id": "MS-001",
-      "label": "Cyber Monitoring Centre — Category 2 classification (May 2025)",
+      "label": "Cyber Monitoring Centre — systemic event classification (20 Jun 2025)",
       "independence_group": "G1",
       "tier_ceiling": "CONFIRMED",
       "proximity": "official-statement",
       "primary": true,
       "derivative_of": null,
-      "incentive_bias": "regulator/independent body — understates pending investigation; treat as floor",
-      "text": "The Cyber Monitoring Centre (CMC) has classified the cyber events affecting Marks & Spencer plc and the Co-operative Group Ltd during April and May 2025 as a single Category 2 systemic cyber event. The classification reflects the scale of retail-operations disruption and consumer impact. The CMC notes that, per public disclosures, initial access in these events involved social engineering of IT help-desk / service-desk processes. The CMC does not assert specific post-compromise technical detail and makes no independent attribution to a named threat group."
+      "incentive_bias": "independent authority — assesses systemic impact; conservative, lags the event",
+      "text": "The Cyber Monitoring Centre (CMC) has assessed the cyber events affecting Marks & Spencer and the Co-operative Group during April–May 2025 as a single combined Category 2 systemic cyber event, with an estimated total financial impact in the range of £270m–£440m. The CMC statement addresses the categorisation and aggregate impact of the events; it does not itself set out the technical initial-access method or attribute the attack to a named threat group."
     },
     {
       "id": "MS-002",
-      "label": "Marks & Spencer Group plc — LSE RNS announcement (22 Apr 2025)",
+      "label": "Marks & Spencer Group plc — LSE RNS cyber incident updates (22 & 25 Apr 2025)",
       "independence_group": "G2",
       "tier_ceiling": "CONFIRMED",
       "proximity": "mandatory-victim-disclosure",
       "primary": true,
       "derivative_of": null,
-      "incentive_bias": "victim — frames for liability, understates severity; trust the fact of disclosure",
-      "text": "Marks & Spencer Group plc confirms it has been managing a cyber incident. The company has stated that its IT help-desk processes were manipulated as part of the attack. Customer-facing impacts include disruption to online order fulfilment and to contactless payments in stores. The company has notified the relevant regulatory authorities and is working with external cyber-security experts. The announcement does not disclose specific post-compromise technical detail such as credential-database access or impact to virtualisation infrastructure."
+      "incentive_bias": "victim — frames for liability, understates severity; trust the fact of disclosure not its characterisation",
+      "text": "Marks & Spencer Group plc confirmed via LSE RNS on 22 April 2025 that it had been managing a cyber incident, that stores remained open and the website and app were operating, that minor temporary changes had been made to store operations, and that it had reported the incident to the relevant data protection supervisory authorities and to the National Cyber Security Centre. A further RNS on 25 April 2025 announced the decision to pause taking orders via its UK and Ireland websites and apps. The disclosures do not state the technical initial-access method, do not name a threat group, and do not describe any credential-database access or impact to virtualisation infrastructure."
+    },
+    {
+      "id": "MS-005",
+      "label": "UK Parliament Business & Trade Committee — Archie Norman (M&S Chairman) oral evidence (8 Jul 2025)",
+      "independence_group": "G1",
+      "tier_ceiling": "CONFIRMED",
+      "proximity": "parliamentary-record-victim-testimony",
+      "primary": true,
+      "derivative_of": null,
+      "incentive_bias": "victim testimony on the parliamentary record — authoritative as to the fact of the vector; may still frame for reputation",
+      "text": "In oral evidence to the House of Commons Business and Trade Committee on 8 July 2025, M&S Chairman Archie Norman described the entry point as a sophisticated impersonation attack: the attackers socially engineered their way in through a third party that handled IT support, and that third party was induced to reset an internal user's password, giving the attackers a foothold. He confirmed the social-engineering / help-desk reset vector as the initial access method. He did not name the third-party provider in the testimony and described attribution to a specific group as not something the company itself had confirmed."
     },
     {
       "id": "MS-003",
-      "label": "BleepingComputer — M&S attack technical reporting (May 2025)",
+      "label": "BleepingComputer — M&S breach technical reporting (May 2025)",
       "independence_group": "G4",
       "tier_ceiling": "REPORTED",
       "proximity": "specialist-press-primary-unnamed-sources",
       "primary": true,
       "derivative_of": null,
-      "incentive_bias": "specialist press primary — reliant on unnamed sources; not independently confirmed by an IR firm with stated direct visibility",
-      "text": "Sources familiar with the matter told BleepingComputer that the attackers obtained a copy of the NTDS.dit Active Directory database, giving them access to password hashes for domain accounts. The same sources said the threat actors then used credentials to access and encrypt the company's VMware ESXi virtual machines, causing the operational outages. The reporting attributes the intrusion to the threat group tracked as Scattered Spider (also UNC3944). These details have not been confirmed by the company or by a regulator, and no incident-response firm has publicly stated first-hand telemetry corroborating them."
+      "incentive_bias": "specialist press primary — relies on unnamed sources; not corroborated by any IR firm with stated first-hand telemetry",
+      "text": "Sources familiar with the matter told BleepingComputer that the attackers obtained a copy of the NTDS.dit Active Directory database, giving them access to password hashes for domain accounts, and that the threat actors subsequently used credentials to access and encrypt the company's VMware ESXi virtual machines, causing the operational outages. The reporting links the intrusion to the threat group tracked as Scattered Spider and to the DragonForce ransomware operation. These technical specifics have not been confirmed by the company, a regulator, or an incident-response firm stating first-hand visibility."
     },
     {
       "id": "MS-004",

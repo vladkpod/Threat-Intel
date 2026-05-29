@@ -1,5 +1,5 @@
 {
-  "incident_name": "Marks & Spencer cyberattack (April–May 2025) — snapshot v2",
+  "incident_name": "Marks & Spencer cyberattack (April–July 2025) — snapshot v2",
   "framework": "CIS_v8",
   "client_profile": null,
   "incident_sources": [
@@ -15,26 +15,26 @@
       "text": "Marks & Spencer is dealing with a cyberattack. Early reporting suggests the attackers may have talked their way past the company's IT help desk to gain access, though this has not been officially confirmed. The retailer has notified the authorities."
     },
     {
-      "id": "MS-001",
-      "label": "Cyber Monitoring Centre — Category 2 classification (May 2025)",
-      "independence_group": "G1",
-      "tier_ceiling": "CONFIRMED",
-      "proximity": "official-statement",
-      "primary": true,
-      "derivative_of": null,
-      "incentive_bias": "regulator/independent body — floor not full picture",
-      "text": "The Cyber Monitoring Centre has classified the Marks & Spencer and Co-operative Group cyber events of April–May 2025 as a single Category 2 systemic event, noting social engineering of IT help-desk processes as the disclosed initial access vector."
-    },
-    {
       "id": "MS-002",
-      "label": "Marks & Spencer Group plc — LSE RNS announcement (22 Apr 2025)",
+      "label": "Marks & Spencer Group plc — LSE RNS cyber incident updates (22 & 25 Apr 2025)",
       "independence_group": "G2",
       "tier_ceiling": "CONFIRMED",
       "proximity": "mandatory-victim-disclosure",
       "primary": true,
       "derivative_of": null,
       "incentive_bias": "victim — frames for liability",
-      "text": "Marks & Spencer confirms a cyber incident in which its IT help-desk processes were manipulated, disrupting online order fulfilment and contactless payments. Regulators have been notified. No post-compromise technical detail such as credential-database access is disclosed."
+      "text": "Marks & Spencer confirmed via LSE RNS that it was managing a cyber incident, that it had notified the NCSC, and that it had paused online orders. The disclosure does not state the technical initial-access method."
+    },
+    {
+      "id": "MS-005",
+      "label": "UK Parliament Business & Trade Committee — Archie Norman (M&S Chairman) oral evidence (8 Jul 2025)",
+      "independence_group": "G1",
+      "tier_ceiling": "CONFIRMED",
+      "proximity": "parliamentary-record-victim-testimony",
+      "primary": true,
+      "derivative_of": null,
+      "incentive_bias": "victim testimony on the parliamentary record — authoritative as to the fact of the vector",
+      "text": "In oral evidence to the House of Commons Business and Trade Committee on 8 July 2025, M&S Chairman Archie Norman confirmed that the attackers gained initial access through a sophisticated impersonation attack: a third party that handled IT support was socially engineered into resetting an internal user's password. This confirms the help-desk social-engineering initial access vector that earlier reporting had only suggested."
     }
   ]
 }

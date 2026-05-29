@@ -23,7 +23,7 @@
       "primary": true,
       "derivative_of": null,
       "incentive_bias": "victim — frames for liability",
-      "text": "Marks & Spencer confirms a cyber incident in which its IT help-desk processes were manipulated, disrupting online order fulfilment and contactless payments. Regulators have been notified."
+      "text": "Marks & Spencer confirms via LSE RNS that it is managing a cyber incident, that minor temporary changes were made to store operations, and that it has notified the NCSC and data protection authorities. The disclosure does not state the technical initial-access method and does not describe any customer-data exfiltration."
     },
     {
       "id": "MS-003",

@@ -12,6 +12,9 @@ assertions. The engine is judged against this eval — not the other way round.
 - `assertions/` — one `*.eval.ts` per test case. Assertion IDs (`[A{tc}.{n}]`)
   map to the signed-off eval spec and to the `CLAUDE.md` invariants.
 - `helpers.ts` — fixture loading + tier helpers shared across test cases.
+- `fixtures/GROUND_TRUTH.md` — the public-record sourcing for every realistic
+  fixture claim, and the flag that the provenance-variant fixtures are
+  synthetic counterfactual probes, not real claims.
 
 ## Test cases → coverage
 
@@ -22,9 +25,13 @@ assertions. The engine is judged against this eval — not the other way round.
 | `ms_echo_corroboration.eval.ts` | `sources_echo.json` | #6 | 5 |
 | `ms_admissibility.eval.ts` | `sources_with_leaksite.json` | — | 7 |
 | `ms_temporal_supersession.eval.ts` | `sources_temporal_v1/v2.json` | — | 8 |
+| `ms_provenance_variant.eval.ts` | `provenance_variant_a/b.json` | — | 1, 2 |
 
 All ten `CLAUDE.md` invariants are exercised; all six Definition-of-done bullets
-are covered.
+are covered. `ms_provenance_variant` is the anti-false-assurance probe: the same
+two claims appear in both fixtures with swapped provenance, so the tiers must
+swap — an engine that has merely memorised the M&S answer passes one variant and
+fails the other.
 
 ## Current status (M0)
 

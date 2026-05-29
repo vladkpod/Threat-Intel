@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc --build",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --dir tests --exclude '**/*.eval.ts' --passWithNoTests",
+    "test": "vitest run --exclude '**/*.eval.ts' --passWithNoTests",
     "eval": "vitest run tests/eval",
     "lint": "eslint ."
   },
@@ -21,5 +21,8 @@
     "typescript-eslint": "^8.60.0",
     "vitest": "^2.1.0",
     "zod": "^3.24.0"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.2.17"
   }
 }

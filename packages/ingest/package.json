@@ -1,0 +1,15 @@
+{
+  "name": "@threat-intel/ingest",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@threat-intel/engine": "0.0.0",
+    "@threat-intel/registry": "0.0.0",
+    "@threat-intel/store": "0.0.0"
+  }
+}

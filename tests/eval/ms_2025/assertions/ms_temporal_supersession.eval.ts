@@ -33,7 +33,7 @@ describe("TC-5 ms_temporal_supersession", () => {
           HELPDESK_RE.test(e.claim) &&
           e.old_tier === "REPORTED" &&
           e.new_tier === "CONFIRMED" &&
-          /MS-001|MS-002|CMC|RNS|Monitoring Centre/i.test(e.superseding_source),
+          /MS-005|MS-002|RNS|Parliament|Business (&|and) Trade|Norman/i.test(e.superseding_source),
       ),
     ).toBe(true);
   });

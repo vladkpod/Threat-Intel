@@ -1,0 +1,72 @@
+{
+  "metadata": {
+    "_note": "TRIMMED TEST SAMPLE — not the full CTID dataset. Records are in the real Mappings Explorer JSON Unified Schema format, taken/derived from the pinned release (see src/ctid/version.ts: mappings_explorer-v1.1.0, commit d4c41dd...). The full mapping is resolved from the pinned commit at runtime, not vendored here. License: Apache-2.0.",
+    "mapping_version": "1.1.0",
+    "attack_version": "16.1",
+    "technology_domain": "enterprise",
+    "mapping_framework": "nist_800_53",
+    "mapping_framework_version": "rev5",
+    "capability_groups": {
+      "AC": "Access Control",
+      "IA": "Identification and Authentication",
+      "SI": "System and Information Integrity"
+    },
+    "mapping_types": {
+      "protects": { "name": "Protects", "description": "" }
+    }
+  },
+  "mapping_objects": [
+    {
+      "comments": "",
+      "attack_object_id": "T1003",
+      "attack_object_name": "OS Credential Dumping",
+      "references": [],
+      "capability_description": "Authenticator Management",
+      "capability_id": "IA-5",
+      "mapping_type": "protects",
+      "capability_group": "IA",
+      "status": "complete",
+      "score_category": null,
+      "score_value": null
+    },
+    {
+      "comments": "",
+      "attack_object_id": "T1003.003",
+      "attack_object_name": "OS Credential Dumping: NTDS",
+      "references": [],
+      "capability_description": "Account Management",
+      "capability_id": "AC-2",
+      "mapping_type": "protects",
+      "capability_group": "AC",
+      "status": "complete",
+      "score_category": null,
+      "score_value": null
+    },
+    {
+      "comments": "",
+      "attack_object_id": "T1078",
+      "attack_object_name": "Valid Accounts",
+      "references": [],
+      "capability_description": "Account Management",
+      "capability_id": "AC-2",
+      "mapping_type": "protects",
+      "capability_group": "AC",
+      "status": "complete",
+      "score_category": null,
+      "score_value": null
+    },
+    {
+      "comments": "Help-desk voice-phishing for credential/MFA reset is a human-process attack that 800-53 technical controls do not cover.",
+      "attack_object_id": "T1566.004",
+      "attack_object_name": "Phishing: Spearphishing Voice",
+      "references": [],
+      "capability_description": "",
+      "capability_id": null,
+      "mapping_type": "",
+      "capability_group": "",
+      "status": "non_mappable",
+      "score_category": null,
+      "score_value": null
+    }
+  ]
+}
