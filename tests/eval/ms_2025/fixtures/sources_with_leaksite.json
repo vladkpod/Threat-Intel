@@ -1,0 +1,51 @@
+{
+  "incident_name": "Marks & Spencer cyberattack (May 2025)",
+  "framework": "CIS_v8",
+  "client_profile": null,
+  "incident_sources": [
+    {
+      "id": "MS-001",
+      "label": "Cyber Monitoring Centre — Category 2 classification (May 2025)",
+      "independence_group": "G1",
+      "tier_ceiling": "CONFIRMED",
+      "proximity": "official-statement",
+      "primary": true,
+      "derivative_of": null,
+      "incentive_bias": "regulator/independent body — floor not full picture",
+      "text": "The Cyber Monitoring Centre has classified the Marks & Spencer and Co-operative Group cyber events of April–May 2025 as a single Category 2 systemic event, noting social engineering of IT help-desk processes as the disclosed initial access vector."
+    },
+    {
+      "id": "MS-002",
+      "label": "Marks & Spencer Group plc — LSE RNS announcement (22 Apr 2025)",
+      "independence_group": "G2",
+      "tier_ceiling": "CONFIRMED",
+      "proximity": "mandatory-victim-disclosure",
+      "primary": true,
+      "derivative_of": null,
+      "incentive_bias": "victim — frames for liability",
+      "text": "Marks & Spencer confirms a cyber incident in which its IT help-desk processes were manipulated, disrupting online order fulfilment and contactless payments. Regulators have been notified."
+    },
+    {
+      "id": "MS-003",
+      "label": "BleepingComputer — M&S NTDS.dit / ESXi reporting",
+      "independence_group": "G4",
+      "tier_ceiling": "REPORTED",
+      "proximity": "specialist-press-primary-unnamed-sources",
+      "primary": true,
+      "derivative_of": null,
+      "incentive_bias": "specialist press primary — unnamed sources",
+      "text": "Sources told BleepingComputer the attackers obtained the NTDS.dit database and encrypted VMware ESXi virtual machines, with the intrusion attributed to Scattered Spider."
+    },
+    {
+      "id": "LEAK-001",
+      "label": "Ransomware leak-site post claiming M&S data (May 2025)",
+      "independence_group": "B6",
+      "tier_ceiling": "INFERRED",
+      "proximity": "criminal-leak-site-actor-claim",
+      "primary": false,
+      "derivative_of": null,
+      "incentive_bias": "criminal actor-claim — excluded as victim-fact per registry §B8; admissible only as INFERRED-about-actor",
+      "text": "A ransomware leak site has posted an entry claiming responsibility for the Marks & Spencer breach and asserting it exfiltrated large volumes of customer records, including specific named data categories. The post includes a purported file sample as proof. This content originates from the criminal actor's own infrastructure and is presented to pressure the victim."
+    }
+  ]
+}

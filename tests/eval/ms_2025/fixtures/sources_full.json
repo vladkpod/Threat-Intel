@@ -1,0 +1,59 @@
+{
+  "incident_name": "Marks & Spencer cyberattack (April–May 2025)",
+  "framework": "CIS_v8",
+  "client_profile": {
+    "sector": "UK retail",
+    "identity_model": "On-prem Active Directory federated to a cloud IdP; outsourced IT service desk",
+    "outsourced_functions": ["Tier-1 IT service desk", "password/MFA reset handling"],
+    "controls_present": [
+      "Anomalous MFA enrolment detection on the IdP (alerted to SOC)",
+      "Impossible-travel / IdP sign-in anomaly alerting"
+    ]
+  },
+  "incident_sources": [
+    {
+      "id": "MS-001",
+      "label": "Cyber Monitoring Centre — Category 2 classification (May 2025)",
+      "independence_group": "G1",
+      "tier_ceiling": "CONFIRMED",
+      "proximity": "official-statement",
+      "primary": true,
+      "derivative_of": null,
+      "incentive_bias": "regulator/independent body — understates pending investigation; treat as floor",
+      "text": "The Cyber Monitoring Centre (CMC) has classified the cyber events affecting Marks & Spencer plc and the Co-operative Group Ltd during April and May 2025 as a single Category 2 systemic cyber event. The classification reflects the scale of retail-operations disruption and consumer impact. The CMC notes that, per public disclosures, initial access in these events involved social engineering of IT help-desk / service-desk processes. The CMC does not assert specific post-compromise technical detail and makes no independent attribution to a named threat group."
+    },
+    {
+      "id": "MS-002",
+      "label": "Marks & Spencer Group plc — LSE RNS announcement (22 Apr 2025)",
+      "independence_group": "G2",
+      "tier_ceiling": "CONFIRMED",
+      "proximity": "mandatory-victim-disclosure",
+      "primary": true,
+      "derivative_of": null,
+      "incentive_bias": "victim — frames for liability, understates severity; trust the fact of disclosure",
+      "text": "Marks & Spencer Group plc confirms it has been managing a cyber incident. The company has stated that its IT help-desk processes were manipulated as part of the attack. Customer-facing impacts include disruption to online order fulfilment and to contactless payments in stores. The company has notified the relevant regulatory authorities and is working with external cyber-security experts. The announcement does not disclose specific post-compromise technical detail such as credential-database access or impact to virtualisation infrastructure."
+    },
+    {
+      "id": "MS-003",
+      "label": "BleepingComputer — M&S attack technical reporting (May 2025)",
+      "independence_group": "G4",
+      "tier_ceiling": "REPORTED",
+      "proximity": "specialist-press-primary-unnamed-sources",
+      "primary": true,
+      "derivative_of": null,
+      "incentive_bias": "specialist press primary — reliant on unnamed sources; not independently confirmed by an IR firm with stated direct visibility",
+      "text": "Sources familiar with the matter told BleepingComputer that the attackers obtained a copy of the NTDS.dit Active Directory database, giving them access to password hashes for domain accounts. The same sources said the threat actors then used credentials to access and encrypt the company's VMware ESXi virtual machines, causing the operational outages. The reporting attributes the intrusion to the threat group tracked as Scattered Spider (also UNC3944). These details have not been confirmed by the company or by a regulator, and no incident-response firm has publicly stated first-hand telemetry corroborating them."
+    },
+    {
+      "id": "MS-004",
+      "label": "CISA/FBI Joint Advisory AA23-320A — Scattered Spider TTPs",
+      "independence_group": "B5",
+      "tier_ceiling": "INFERRED",
+      "proximity": "actor-pattern-advisory",
+      "primary": true,
+      "derivative_of": null,
+      "incentive_bias": "actor-pattern intel — NEVER incident-fact; use only to populate inferred/analogous tiers",
+      "text": "Scattered Spider (UNC3944) is documented to social-engineer IT help desks via voice phishing (T1566.004) and to impersonate employees (T1656) to obtain password and MFA resets. The group's documented post-compromise playbook includes extraction of the NTDS.dit credential database and targeting of VMware ESXi hypervisors for encryption. This advisory describes the actor's general behaviour and is not a statement about any specific named victim."
+    }
+  ]
+}

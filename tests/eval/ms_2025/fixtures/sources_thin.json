@@ -1,0 +1,18 @@
+{
+  "incident_name": "Marks & Spencer cyberattack (April 2025)",
+  "framework": "CIS_v8",
+  "client_profile": null,
+  "incident_sources": [
+    {
+      "id": "THIN-001",
+      "label": "Generic news wire — M&S cyberattack (Apr 2025)",
+      "independence_group": "G4",
+      "tier_ceiling": "REPORTED",
+      "proximity": "low-specificity-derivative",
+      "primary": false,
+      "derivative_of": null,
+      "incentive_bias": "general news — no original sourcing, no technical specifics",
+      "text": "Marks & Spencer has confirmed that a cyberattack has disrupted some of its operations. The retailer said it is working with cybersecurity experts and has notified the relevant authorities. No further technical details about how the attack was carried out have been released at this time."
+    }
+  ]
+}
