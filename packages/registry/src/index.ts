@@ -19,3 +19,10 @@ export {
   CtidDocument,
   type ControlLink,
 } from "./ctid/loader.js";
+export {
+  HUMAN_IDENTITY_CONTROLS,
+  humanIdentityControlsFor,
+  type HumanIdentityControl,
+  type ControlAxis,
+  type ControlTestability,
+} from "./human-identity-library.js";
