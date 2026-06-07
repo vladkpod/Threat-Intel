@@ -1,0 +1,18 @@
+{
+  "incident_name": "Marks & Spencer cyberattack (April 2025) — snapshot v1",
+  "framework": "CIS_v8",
+  "client_profile": null,
+  "incident_sources": [
+    {
+      "id": "THIN-001",
+      "label": "Generic news wire — M&S cyberattack, helpdesk mention (Apr 2025)",
+      "independence_group": "G4",
+      "tier_ceiling": "REPORTED",
+      "proximity": "low-specificity-derivative",
+      "primary": false,
+      "derivative_of": null,
+      "incentive_bias": "general news — early, unconfirmed",
+      "text": "Marks & Spencer is dealing with a cyberattack. Early reporting suggests the attackers may have talked their way past the company's IT help desk to gain access, though this has not been officially confirmed. The retailer has notified the authorities."
+    }
+  ]
+}

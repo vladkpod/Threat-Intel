@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@engine": ["packages/engine/src/index.ts"],
+      "@engine/*": ["packages/engine/src/*"],
+      "@store": ["packages/store/src/index.ts"],
+      "@store/*": ["packages/store/src/*"],
+      "@registry": ["packages/registry/src/index.ts"],
+      "@registry/*": ["packages/registry/src/*"],
+      "@ingest": ["packages/ingest/src/index.ts"],
+      "@ingest/*": ["packages/ingest/src/*"],
+      "@sector": ["packages/sector/src/index.ts"],
+      "@sector/*": ["packages/sector/src/*"]
+    }
+  },
+  "include": ["packages", "tests"],
+  "exclude": ["node_modules", "dist", "packages/web", "packages/api"]
+}

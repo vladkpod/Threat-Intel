@@ -1,0 +1,51 @@
+{
+  "incident_name": "Marks & Spencer cyberattack (May 2025)",
+  "framework": "CIS_v8",
+  "client_profile": null,
+  "incident_sources": [
+    {
+      "id": "ECHO-A",
+      "label": "BleepingComputer — M&S NTDS.dit / ESXi reporting (primary)",
+      "independence_group": "G4",
+      "tier_ceiling": "REPORTED",
+      "proximity": "specialist-press-primary-unnamed-sources",
+      "primary": true,
+      "derivative_of": null,
+      "incentive_bias": "specialist press primary — single chain of unnamed sources",
+      "text": "Sources familiar with the matter told BleepingComputer that the attackers obtained a copy of the NTDS.dit Active Directory database and subsequently encrypted the company's VMware ESXi virtual machines. The reporting attributes the intrusion to Scattered Spider."
+    },
+    {
+      "id": "ECHO-B",
+      "label": "Reuters — M&S cyberattack round-up (cites BleepingComputer)",
+      "independence_group": "G4",
+      "tier_ceiling": "REPORTED",
+      "proximity": "derivative",
+      "primary": false,
+      "derivative_of": "ECHO-A",
+      "incentive_bias": "major outlet round-up — repeats specialist-press detail, adds no independent sourcing",
+      "text": "According to a report by BleepingComputer, the attackers behind the Marks & Spencer incident stole the NTDS.dit Active Directory database and encrypted VMware ESXi virtual machines. Reuters has not independently verified these technical details."
+    },
+    {
+      "id": "ECHO-C",
+      "label": "The Guardian — M&S hackers summary (cites specialist press)",
+      "independence_group": "G4",
+      "tier_ceiling": "REPORTED",
+      "proximity": "derivative",
+      "primary": false,
+      "derivative_of": "ECHO-A",
+      "incentive_bias": "general news summary — derivative of the same origin",
+      "text": "Specialist cyber-security press has reported that the Marks & Spencer attackers obtained the NTDS.dit credential database before encrypting ESXi virtual machines. The Guardian's summary is based on that coverage."
+    },
+    {
+      "id": "ECHO-D",
+      "label": "Sky News — M&S cyberattack explainer (cites specialist press)",
+      "independence_group": "G4",
+      "tier_ceiling": "REPORTED",
+      "proximity": "derivative",
+      "primary": false,
+      "derivative_of": "ECHO-A",
+      "incentive_bias": "broadcast explainer — derivative of the same origin",
+      "text": "Reports in the technical press say the hackers who hit Marks & Spencer took a copy of the NTDS.dit database and went on to encrypt the firm's ESXi virtual machines. This explainer repeats those reported details."
+    }
+  ]
+}
