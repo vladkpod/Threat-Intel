@@ -133,20 +133,31 @@ function buildVersionLog(
   return entries;
 }
 
-/** Extract actor name from B5 source text (INFERRED attribution only). */
+// Known threat-actor name patterns. Extend as new incidents are added to the
+// corpus — do not hard-code incident-specific names in extraction logic.
+const ACTOR_PATTERN_B5 =
+  /Scattered Spider|UNC3944|DragonForce|Rhysida|[A-Z][a-z]+\s(?:Spider|Bear|Panda|Kitten|Jackal)/;
+const ACTOR_PATTERN_PRESS = /Scattered Spider|UNC3944|DragonForce|Rhysida/;
+
+/** Extract actor name from B5 or press source text (INFERRED attribution only). */
 function extractActor(sources: SourceDocument[]): string {
   const actorSources = sources.filter((s) => s.independence_group === "B5");
   for (const src of actorSources) {
-    const m = src.text.match(
-      /Scattered Spider|UNC3944|DragonForce|[A-Z][a-z]+\s(?:Spider|Bear|Panda|Kitten|Jackal)/,
-    );
+    const m = src.text.match(ACTOR_PATTERN_B5);
     if (m) return `${m[0]} (INFERRED — actor-pattern intel only; not incident-confirmed)`;
   }
   const pressSources = sources.filter((s) => s.independence_group === "G4");
   for (const src of pressSources) {
-    const m = src.text.match(/Scattered Spider|UNC3944|DragonForce/);
+    const m = src.text.match(ACTOR_PATTERN_PRESS);
     if (m)
       return `${m[0]} (INFERRED — specialist press reporting; not officially confirmed)`;
+  }
+  // G1 government advisories may name the actor with higher confidence.
+  const govSources = sources.filter((s) => s.independence_group === "G1");
+  for (const src of govSources) {
+    const m = src.text.match(ACTOR_PATTERN_B5);
+    if (m)
+      return `${m[0]} (INFERRED — government advisory naming; not victim-confirmed for this incident)`;
   }
   return "Unknown (insufficient public attribution evidence)";
 }

@@ -54,6 +54,26 @@ export const TECHNIQUE_SIGNATURES: readonly TechniqueSignature[] = [
   },
 
   {
+    // External Remote Services / VPN initial access.
+    // M&S: no VPN text in any source → does not fire.
+    // BL (Rhysida): BL review + NCSC confirm VPN credential compromise → CONFIRMED.
+    technique_id: "T1133",
+    tactic: "Initial Access (TA0001)",
+    subject: "victim_fact",
+    step_order: 1,
+    patterns: [
+      /VPN|virtual private network/i,
+      /external remote(?:\s+service|\s+access)/i,
+      /compromised.*VPN|VPN.*credential|VPN.*compromised/i,
+      /T1133/,
+    ],
+    describe: (labels) =>
+      `Attackers gained initial access via a compromised VPN account or external remote service using valid credentials (T1133 — External Remote Services). Source(s): ${labels.join("; ")}.`,
+    insufficientEvidenceNote:
+      "Insufficient public evidence for VPN or external remote service initial access.",
+  },
+
+  {
     technique_id: "T1003.003",
     tactic: "Credential Access (TA0006)",
     subject: "victim_fact",

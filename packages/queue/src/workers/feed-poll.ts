@@ -11,6 +11,14 @@ import type { FeedPollPayload, IncidentDetectedPayload } from "../types.js";
 type FetchAttackStixFn = () => Promise<AttackStixResult>;
 type FetchKevFn = () => Promise<KevFeedResult>;
 
+// Title-based dedup: prevents re-queueing the same feed entry across polls.
+// Known limitation: this is a heuristic, not full echo-resolution.
+//   - Miss case: two outlets describe the same incident with different headlines
+//     (both enqueue; downstream review gate catches the duplicate at human review)
+//   - False-positive case: genuinely distinct incidents that happen to share a
+//     title prefix (rare for structured ATT&CK / KEV titles; acceptable at MVP)
+// Full primary-source dedup (§B7) must be enforced at claim-level in the ingest
+// pipeline, not here at the candidate-detection stage.
 async function isDuplicateCandidate(
   db: Db,
   title: string,

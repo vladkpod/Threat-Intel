@@ -1,0 +1,48 @@
+{
+  "incident_name": "British Library — Rhysida ransomware attack (October 2023)",
+  "framework": "CIS_v8",
+  "client_profile": {
+    "sector": "UK public sector / cultural heritage",
+    "identity_model": "On-premises Active Directory with external contractor VPN access; limited MFA coverage on remote access accounts",
+    "outsourced_functions": ["IT infrastructure services (contracted third party)"],
+    "controls_present": [
+      "Multi-factor authentication on some VPN accounts (not universally enforced)",
+      "Privileged access management policy (documented but not fully implemented)"
+    ]
+  },
+  "incident_sources": [
+    {
+      "id": "BL-001",
+      "label": "British Library — Cyber Incident Review (March 2024)",
+      "independence_group": "G2",
+      "tier_ceiling": "CONFIRMED",
+      "proximity": "primary-victim-disclosure",
+      "primary": true,
+      "derivative_of": null,
+      "incentive_bias": "victim disclosing its own incident — authoritative as to the fact of the vector; may understate severity; one of the most transparent victim incident reviews published by a UK public body",
+      "text": "The British Library Cyber Incident Review, published March 2024, confirms that in late October 2023 the Library was subjected to a ransomware attack attributed to the Rhysida group. Initial access was achieved through a compromised VPN account belonging to a third-party contracted IT services provider. The attackers used the contractor's valid credentials to access the Library's network via its external remote access infrastructure. Following initial access, the attackers moved laterally through the on-premises environment, escalated privileges to domain controller level, and performed credential dumping, extracting the NTDS.dit Active Directory database and acquiring password hashes for domain accounts. Ransomware was subsequently deployed across Library infrastructure, encrypting data and causing service outages that persisted for several months. The Library confirmed that personal data belonging to current and former employees — including names, personal contact details, payroll records, passport data, and national insurance numbers — was exfiltrated and listed for sale on a Rhysida-operated data leak site. The review identifies significant control gaps in network segmentation, external access management, privileged access controls, and backup segregation."
+    },
+    {
+      "id": "BL-002",
+      "label": "NCSC — Rhysida threat actor advisory (co-authored with CISA and international partners)",
+      "independence_group": "G1",
+      "tier_ceiling": "CONFIRMED",
+      "proximity": "government-advisory",
+      "primary": false,
+      "derivative_of": null,
+      "incentive_bias": "independent government authority — describes Rhysida TTPs in general; not a statement of victim-specific facts",
+      "text": "The National Cyber Security Centre (NCSC), together with CISA and international partners, has published analysis of the Rhysida ransomware group's documented tactics, techniques, and procedures. Rhysida gains initial access predominantly by exploiting compromised VPN credentials and external remote services, using valid accounts belonging to contractors or employees (T1133 — External Remote Services). Post-compromise activity consistently includes lateral movement, credential dumping via extraction of the Active Directory database, and deployment of ransomware for double-extortion. The NCSC advisory notes that Rhysida has targeted the UK public sector, education, and cultural heritage organisations. This advisory describes the actor's general modus operandi and is not a statement of facts specific to any named victim organisation."
+    },
+    {
+      "id": "BL-003",
+      "label": "The Guardian — British Library cyber attack reporting (October–December 2023)",
+      "independence_group": "G4",
+      "tier_ceiling": "REPORTED",
+      "proximity": "press-secondhand",
+      "primary": false,
+      "derivative_of": null,
+      "incentive_bias": "major press — relies on researcher sources and public disclosures; does not cite named IR personnel with direct telemetry access",
+      "text": "The Guardian reported that the British Library suffered a ransomware attack in October 2023, causing widespread outages to its website, catalogue, and digital services. Security researchers told The Guardian that the attackers accessed the Library's network via a VPN account using compromised contractor credentials, before deploying ransomware. The attack has been attributed to the Rhysida ransomware group by cybersecurity researchers. Staff personal data was reportedly exfiltrated and advertised for sale on a dark web auction site. The Guardian reporting does not cite named incident-response personnel with first-hand technical visibility and does not independently confirm the credential-access or lateral-movement details."
+    }
+  ]
+}
