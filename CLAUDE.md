@@ -51,3 +51,26 @@ Run typecheck + lint after every change set. Do not bypass hooks.
 - Do not store browser localStorage/sessionStorage in any artifact-style frontend.
 - Do not invent source attributions; if a claim lacks a tier+provenance, drop it.
 - Do not mark the build complete with the M&S eval failing or skipped.
+
+## M6 — Auto-update pipeline additions
+
+### Queue technology
+Postgres-native job queue only (pg-boss preferred). Do not introduce Redis or BullMQ.
+The existing Postgres store is the right substrate; no new infrastructure.
+
+### Invariant 11 — human review gate (non-negotiable)
+Auto-detected incidents route to a human review queue before any reconstruction
+is initiated. Verdict-change notifications route to human review before reaching
+clients. There is no code path that auto-reconstructs or auto-notifies without
+human approval. A test that auto-reconstruction fires without approval is a
+failing test, not an acceptable shortcut.
+
+### Invariant 12 — tier ceiling enforcement
+Auto-ingested claims inherit the tier ceiling of their source class (press RSS =
+REPORTED ceiling; regulator advisory = CONFIRMED ceiling). No auto-ingestion
+path may store a claim at a higher tier than its source class permits.
+
+### M6 decay rule
+Decay is a caveat flag on read, not a score mutation. A REPORTED-tier open claim
+older than the staleness threshold gets a caveats[] entry; its stored confidence
+is unchanged. Do not confuse with supersession (TC-5, already done).
