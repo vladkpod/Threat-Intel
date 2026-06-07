@@ -27,9 +27,11 @@
       "@registry": ["packages/registry/src/index.ts"],
       "@registry/*": ["packages/registry/src/*"],
       "@ingest": ["packages/ingest/src/index.ts"],
-      "@ingest/*": ["packages/ingest/src/*"]
+      "@ingest/*": ["packages/ingest/src/*"],
+      "@sector": ["packages/sector/src/index.ts"],
+      "@sector/*": ["packages/sector/src/*"]
     }
   },
   "include": ["packages", "tests"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "packages/web", "packages/api"]
 }

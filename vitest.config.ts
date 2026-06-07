@@ -8,6 +8,7 @@ export default defineConfig({
       "@store": fileURLToPath(new URL("./packages/store/src", import.meta.url)),
       "@registry": fileURLToPath(new URL("./packages/registry/src", import.meta.url)),
       "@ingest": fileURLToPath(new URL("./packages/ingest/src", import.meta.url)),
+      "@sector": fileURLToPath(new URL("./packages/sector/src", import.meta.url)),
     },
   },
   test: {

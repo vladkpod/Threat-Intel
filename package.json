@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --exclude '**/*.eval.ts' --passWithNoTests",
     "eval": "vitest run tests/eval",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "dev:api": "npm run dev --workspace=packages/api",
+    "dev:web": "npm run dev --workspace=packages/web"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

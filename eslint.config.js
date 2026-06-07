@@ -12,6 +12,7 @@ export default tseslint.config(
     // Build tooling (eslint.config.js, *.config.ts) is exempt — those formats
     // require a default export.
     files: ["packages/**/*.ts", "tests/**/*.ts"],
+    ignores: ["packages/web/vite.config.ts", "packages/web/tailwind.config.js", "packages/web/postcss.config.js"],
     rules: {
       "no-restricted-syntax": [
         "error",
