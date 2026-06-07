@@ -74,3 +74,6 @@ path may store a claim at a higher tier than its source class permits.
 Decay is a caveat flag on read, not a score mutation. A REPORTED-tier open claim
 older than the staleness threshold gets a caveats[] entry; its stored confidence
 is unchanged. Do not confuse with supersession (TC-5, already done).
+
+## Known limitations
+Extraction pattern matching is negation-blind — phrases like "no evidence of X" will register as positive technique detections; negation-aware extraction is scoped to M7.
