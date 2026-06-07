@@ -73,3 +73,53 @@ export interface ClaimVersionRow {
   valid_to: string | null;
   superseded_by: number | null;
 }
+
+// M6 types
+
+export type JobStatus = "pending" | "running" | "completed" | "failed";
+export type ReviewStatus = "pending" | "approved" | "rejected" | "deferred";
+export type ReviewType = "new-incident" | "verdict-change";
+
+export interface JobRow {
+  id: number;
+  job_type: string;
+  payload: unknown;
+  status: JobStatus;
+  run_after: string;
+  started_at: string | null;
+  completed_at: string | null;
+  failed_at: string | null;
+  error: string | null;
+  created_at: string;
+}
+
+export interface ReviewQueueRow {
+  id: number;
+  feed_job_id: number | null;
+  type: ReviewType;
+  candidate_title: string;
+  candidate_text: string;
+  tier_ceiling: EvidenceTier;
+  status: ReviewStatus;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  reconstruction_job_id: number | null;
+  created_at: string;
+}
+
+export interface ReconstructionResultRow {
+  id: number;
+  incident_id: number;
+  review_queue_id: number;
+  critical_path_techniques: unknown;
+  result_json: unknown;
+  created_at: string;
+}
+
+export interface ClaimStalenessRow {
+  id: number;
+  claim_id: number;
+  claim_version_id: number;
+  caveat: string;
+  flagged_at: string;
+}

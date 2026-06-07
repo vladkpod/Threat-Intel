@@ -29,7 +29,9 @@
       "@ingest": ["packages/ingest/src/index.ts"],
       "@ingest/*": ["packages/ingest/src/*"],
       "@sector": ["packages/sector/src/index.ts"],
-      "@sector/*": ["packages/sector/src/*"]
+      "@sector/*": ["packages/sector/src/*"],
+      "@queue": ["packages/queue/src/index.ts"],
+      "@queue/*": ["packages/queue/src/*"]
     }
   },
   "include": ["packages", "tests"],

@@ -9,6 +9,8 @@
     "build": "tsc --build"
   },
   "dependencies": {
+    "@threat-intel/queue": "0.0.0",
+    "@threat-intel/store": "0.0.0",
     "@trpc/server": "^11.0.0",
     "cors": "^2.8.5",
     "express": "^4.21.0",
