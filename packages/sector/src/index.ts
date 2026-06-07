@@ -10,3 +10,16 @@ export type {
   SectorSummary,
   SectorView,
 } from "./schema.js";
+export {
+  fetchNcscPublications,
+  createAnthropicClient,
+  filterNegatedClaims,
+  applyTierCeiling,
+  extractCveIds,
+} from "./feeds/ncsc/index.js";
+export type {
+  NcscFeedItem,
+  NcscFeedConfig,
+  NcscClaim,
+  LlmClient,
+} from "./feeds/ncsc/index.js";

@@ -7,11 +7,11 @@ export type JobType =
   | "decay.scan";
 
 export interface FeedPollPayload {
-  source: "attack-stix" | "cisa-kev";
+  source: "attack-stix" | "cisa-kev" | "ncsc-publications";
 }
 
 export interface IncidentDetectedPayload {
-  source: "attack-stix" | "cisa-kev" | "press-rss";
+  source: "attack-stix" | "cisa-kev" | "press-rss" | "ncsc-publications";
   candidate_title: string;
   candidate_text: string;
   tier_ceiling: EvidenceTier;
