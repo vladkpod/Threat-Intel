@@ -11,7 +11,7 @@ app.use(express.json());
 
 const port = Number(process.env["PORT"] ?? 3001);
 
-void createMigratedDb().then((db) => {
+void createMigratedDb(process.env["PGLITE_DATA_DIR"]).then((db) => {
   app.use(
     "/api/trpc",
     createExpressMiddleware({

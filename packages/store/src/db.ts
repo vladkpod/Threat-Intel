@@ -13,20 +13,38 @@ export type Db = PGlite;
 
 const MIGRATIONS_DIR = fileURLToPath(new URL("../migrations/", import.meta.url));
 
-/** Apply every migration in filename order. Idempotent per fresh database. */
+/** Apply every migration in filename order. Idempotent — tracks applied files. */
 export async function migrate(db: Db): Promise<void> {
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS _migrations (
+      filename TEXT PRIMARY KEY,
+      applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `);
+
   const files = readdirSync(MIGRATIONS_DIR)
     .filter((f) => f.endsWith(".sql"))
     .sort();
+
   for (const file of files) {
+    const done = await db.query<{ filename: string }>(
+      `SELECT filename FROM _migrations WHERE filename = $1`,
+      [file],
+    );
+    if (done.rows.length > 0) continue;
+
     const sql = readFileSync(`${MIGRATIONS_DIR}${file}`, "utf8");
     await db.exec(sql);
+    await db.query(`INSERT INTO _migrations (filename) VALUES ($1)`, [file]);
   }
 }
 
-/** Create a fresh in-memory database with all migrations applied. */
-export async function createMigratedDb(): Promise<Db> {
-  const db = await PGlite.create();
+/**
+ * Create (or open) a database with all migrations applied.
+ * Pass a directory path for file-based persistence; omit for in-memory.
+ */
+export async function createMigratedDb(dataDir?: string): Promise<Db> {
+  const db = await PGlite.create(dataDir);
   await migrate(db);
   return db;
 }
