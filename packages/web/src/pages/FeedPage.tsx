@@ -36,11 +36,26 @@ export function FeedPage({ onSelectIncident }: Props) {
     mutation.mutate(parsed as Parameters<typeof mutation.mutate>[0]);
   }
 
+  const mostRecent = query.data?.[0];
+
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b px-6 py-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold tracking-tight">Incident Feed</h1>
+      <header className="border-b bg-muted/40 px-6 py-6">
+        <div className="max-w-3xl mx-auto flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">Incident Feed</h1>
+            {query.data && query.data.length > 0 && mostRecent && (
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {query.data.length} incident{query.data.length !== 1 ? "s" : ""} tracked
+                {" · "}Latest:{" "}
+                {new Date(mostRecent.created_at).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </p>
+            )}
+          </div>
           <Button variant="outline" size="sm" onClick={() => setShowForm((v) => !v)}>
             {showForm ? "Cancel" : "Add Incident"}
           </Button>

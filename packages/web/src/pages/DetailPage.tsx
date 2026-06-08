@@ -66,6 +66,10 @@ export function DetailPage({ incidentId, onBack }: Props) {
 
       <main className="max-w-5xl mx-auto px-6 py-8 space-y-8">
         <section>
+          <VerdictPanel verdict={out.verdict} />
+        </section>
+
+        <section>
           <Card>
             <CardContent className="pt-6 space-y-2">
               {out.incident.actor && (
@@ -127,11 +131,6 @@ export function DetailPage({ incidentId, onBack }: Props) {
         <section>
           <h2 className="text-lg font-semibold mb-3">Self-Assessment Questionnaire</h2>
           <SelfAssessmentPanel entries={out.self_assessment} />
-        </section>
-
-        <section>
-          <h2 className="text-lg font-semibold mb-3">Verdict</h2>
-          <VerdictPanel verdict={out.verdict} />
         </section>
 
         {out.version_log.length > 0 && (
