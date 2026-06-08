@@ -9,16 +9,17 @@ const app = express();
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 
-app.use(
-  "/api/trpc",
-  createExpressMiddleware({
-    router: appRouter,
-  }),
-);
-
 const port = Number(process.env["PORT"] ?? 3001);
 
 void createMigratedDb().then((db) => {
+  app.use(
+    "/api/trpc",
+    createExpressMiddleware({
+      router: appRouter,
+      createContext: () => ({ db }),
+    }),
+  );
+
   app.use("/admin", createAdminRouter(db));
 
   app.listen(port, () => {

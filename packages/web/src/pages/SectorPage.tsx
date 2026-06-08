@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { trpc } from "@/lib/trpc.js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.js";
 import { Badge } from "@/components/ui/badge.js";
@@ -8,7 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion.js";
-import { Button } from "@/components/ui/button.js";
+import { techniqueDisplayName } from "@/lib/technique-names.js";
 import type { SectorSummary } from "../../../sector/src/schema.js";
 
 function TechniqueChips({ techniques }: { techniques: { technique_id: string; count: number }[] }) {
@@ -17,9 +16,9 @@ function TechniqueChips({ techniques }: { techniques: { technique_id: string; co
       {techniques.map((t) => (
         <span
           key={t.technique_id}
-          className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-xs font-mono text-slate-700"
+          className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700"
         >
-          {t.technique_id}
+          {techniqueDisplayName(t.technique_id)}
           <span className="text-slate-400">×{t.count}</span>
         </span>
       ))}
@@ -28,6 +27,8 @@ function TechniqueChips({ techniques }: { techniques: { technique_id: string; co
 }
 
 function SectorCard({ summary }: { summary: SectorSummary }) {
+  const topKev = summary.recent_kevs[0] ?? null;
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -48,6 +49,20 @@ function SectorCard({ summary }: { summary: SectorSummary }) {
           </p>
           <TechniqueChips techniques={summary.top_techniques} />
         </div>
+
+        {topKev && (
+          <div className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm">
+            <span className="font-mono text-xs font-semibold text-amber-700 mr-2">
+              {topKev.cveID}
+            </span>
+            <span className="text-amber-900">{topKev.vulnerabilityName}</span>
+            {topKev.knownRansomwareCampaignUse === "Known" && (
+              <Badge variant="destructive" className="ml-2 text-[10px] py-0">
+                Ransomware
+              </Badge>
+            )}
+          </div>
+        )}
 
         <Accordion type="single" collapsible>
           <AccordionItem value="groups">
@@ -115,8 +130,7 @@ function SectorCard({ summary }: { summary: SectorSummary }) {
 }
 
 export function SectorPage() {
-  const [enabled, setEnabled] = useState(false);
-  const query = trpc.sector.view.useQuery(undefined, { enabled });
+  const query = trpc.sector.view.useQuery();
 
   return (
     <div className="min-h-screen bg-background">
@@ -127,34 +141,37 @@ export function SectorPage() {
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-8 space-y-6">
-        <div className="flex items-center gap-4">
-          <Button
-            onClick={() => setEnabled(true)}
-            disabled={query.isFetching}
-          >
-            {query.isFetching ? "Loading feeds…" : "Load Sector Intelligence"}
-          </Button>
-          {query.data && (
+        {query.isFetching && (
+          <div className="grid gap-4 md:grid-cols-2">
+            {[1, 2, 3, 4].map((i) => (
+              <Card key={i}>
+                <CardContent className="py-8">
+                  <div className="h-4 bg-muted rounded animate-pulse mb-3 w-1/2" />
+                  <div className="h-3 bg-muted rounded animate-pulse mb-2 w-full" />
+                  <div className="h-3 bg-muted rounded animate-pulse w-3/4" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {query.data && (
+          <>
             <p className="text-sm text-muted-foreground">
               ATT&CK {query.data.attack_version} · KEV {query.data.kev_version} ·{" "}
               {query.data.sectors.length} sectors · generated{" "}
               {new Date(query.data.generated_at).toLocaleString()}
             </p>
-          )}
-        </div>
-
-        {query.error && (
-          <p className="text-sm text-destructive">
-            Error: {query.error.message}
-          </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              {query.data.sectors.map((sector) => (
+                <SectorCard key={sector.sector} summary={sector} />
+              ))}
+            </div>
+          </>
         )}
 
-        {query.data && (
-          <div className="grid gap-4 md:grid-cols-2">
-            {query.data.sectors.map((sector) => (
-              <SectorCard key={sector.sector} summary={sector} />
-            ))}
-          </div>
+        {query.error && (
+          <p className="text-sm text-destructive">Error: {query.error.message}</p>
         )}
       </main>
     </div>
