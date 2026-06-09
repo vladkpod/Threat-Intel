@@ -17,6 +17,10 @@ const STIX_URL =
 /** ATT&CK 16.1 is the pinned version for this deployment. */
 const PINNED_VERSION = "16.1";
 
+const CACHE_TTL_MS = 60 * 60 * 1000;
+let _cache: AttackStixResult | null = null;
+let _cacheExpiresAt = 0;
+
 const SECTOR_KEYWORD_MAP: Array<{ sector: string; keywords: RegExp }> = [
   { sector: "Financial Services", keywords: /\b(bank|financ|credit|swift|payment|cryptocurrency|currency|investment|insurance)\b/i },
   { sector: "Government", keywords: /\b(government|ministry|department|federal|nation.{0,4}state|public sector|parliament|diplomatic|embassy|politic)\b/i },
@@ -80,6 +84,10 @@ export interface AttackStixResult {
 export async function fetchAttackStix(
   url = STIX_URL,
 ): Promise<AttackStixResult> {
+  if (_cache && Date.now() < _cacheExpiresAt) {
+    return _cache;
+  }
+
   const resp = await fetch(url);
   if (!resp.ok) {
     throw new Error(`ATT&CK STIX fetch failed: ${resp.status} ${resp.statusText}`);
@@ -157,5 +165,8 @@ export async function fetchAttackStix(
     ? (rawVersion.includes(".") ? rawVersion : `${rawVersion}.0`)
     : PINNED_VERSION;
 
-  return { version, groups };
+  const result: AttackStixResult = { version, groups };
+  _cache = result;
+  _cacheExpiresAt = Date.now() + CACHE_TTL_MS;
+  return result;
 }

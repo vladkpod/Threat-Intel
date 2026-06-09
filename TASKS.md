@@ -98,10 +98,10 @@ The loop only terminates when a review pass finds zero new gaps to add.
 - [x] **`npm audit`** — run audit, fix any high/critical vulnerabilities. 
   AC: `npm audit` returns 0 high or critical vulnerabilities.
 
-- [ ] **Remove ReconstructPage.tsx dead code** — `packages/web/src/pages/ReconstructPage.tsx` is not imported or rendered anywhere. AC: file removed; `npm run build`, typecheck, lint all pass.
+- [x] **Remove ReconstructPage.tsx dead code** — `packages/web/src/pages/ReconstructPage.tsx` is not imported or rendered anywhere. AC: file removed; `npm run build`, typecheck, lint all pass.
 
-- [ ] **Aria-hidden decorative icons** — icons in `AttackChainView` (ShieldAlert, Eye, Zap, ChevronDown) are decorative (text labels present). Add `aria-hidden={true}` to each. AC: icons have `aria-hidden="true"` in rendered HTML.
+- [x] **Aria-hidden decorative icons** — icons in `AttackChainView` (ShieldAlert, Eye, Zap, ChevronDown) are decorative (text labels present). Add `aria-hidden={true}` to each. AC: icons have `aria-hidden="true"` in rendered HTML.
 
-- [ ] **STIX bundle caching** — `fetchSectorView()` fetches the ATT&CK STIX bundle on every call. Cache the parsed bundle in module scope with a 1-hour TTL. AC: two calls within 1 hour result in only one network request to the STIX URL.
+- [x] **STIX bundle caching** — `fetchSectorView()` fetches the ATT&CK STIX bundle on every call. Cache the parsed bundle in module scope with a 1-hour TTL. AC: two calls within 1 hour result in only one network request to the STIX URL.
 
-- [ ] **T-code regression test** — add an eval assertion that no string matching `/T\d{4}/` appears in `what_happened`, `generalised_pattern.title`, `generalised_pattern.chain_summary`, or any `gap` text in the M&S reconstruction output. AC: test passes; if a T-code is reintroduced in engine prose, the test fails.
+- [x] **T-code regression test** — add an eval assertion that no string matching `/T\d{4}/` appears in `what_happened`, `generalised_pattern.title`, `generalised_pattern.chain_summary`, or any `gap` text in the M&S reconstruction output. AC: test passes; if a T-code is reintroduced in engine prose, the test fails.

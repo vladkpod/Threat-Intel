@@ -49,7 +49,7 @@ function BreakingControlList({ controls }: { controls: Step["breaking_controls"]
             key={i}
             className={`rounded border px-2 py-1.5 text-xs flex items-start gap-2 ${AXIS_STYLES[c.axis] ?? ""}`}
           >
-            {Icon && <Icon className="w-3.5 h-3.5 shrink-0 mt-0.5" />}
+            {Icon && <Icon className="w-3.5 h-3.5 shrink-0 mt-0.5" aria-hidden={true} />}
             <span>
               <span className="font-semibold uppercase mr-1.5">{c.axis}</span>
               {c.description}
@@ -79,7 +79,7 @@ export function AttackChainView({ steps }: { steps: ReconstructionOutput["attack
         <div key={step.step}>
           {idx > 0 && (
             <div className="flex justify-center py-1.5">
-              <ChevronDown className="w-4 h-4 text-muted-foreground/40" />
+              <ChevronDown className="w-4 h-4 text-muted-foreground/40" aria-hidden={true} />
             </div>
           )}
           <Card>
