@@ -165,8 +165,8 @@ export function DetailPage({ incidentId, onBack }: Props) {
           <section>
             <h2 className="text-lg font-semibold mb-3">Version Log</h2>
             <Card>
-              <CardContent className="pt-4">
-                <table className="w-full text-xs">
+              <CardContent className="pt-4 overflow-x-auto">
+                <table className="w-full text-xs min-w-[500px]">
                   <thead>
                     <tr className="border-b">
                       <th className="text-left pb-2 font-medium">Claim</th>

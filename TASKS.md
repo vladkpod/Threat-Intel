@@ -80,7 +80,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
   pattern matching on press sources. AC: "no evidence of T1003" does not produce 
   T1003 chain step; eval suite green.
 
-- [ ] **Responsive layout** — verify layout at 1280px and 1440px breakpoints. 
+- [x] **Responsive layout** — verify layout at 1280px and 1440px breakpoints. 
   Fix any overflow or broken layouts. AC: no horizontal scroll at either width.
 
 - [ ] **Focus states** — all interactive elements have visible focus rings. 
