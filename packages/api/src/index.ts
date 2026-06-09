@@ -66,7 +66,20 @@ void createMigratedDb(dataDir).then((db) => {
 
   app.use("/admin", adminRateLimit, createAdminRouter(db));
 
-  app.listen(port, () => {
+  const httpServer = app.listen(port, () => {
     console.log(`API server listening on http://localhost:${port}`);
   });
+
+  function shutdown(signal: string) {
+    console.log(`${signal} received, shutting down gracefully…`);
+    httpServer.close(() => {
+      void (db as unknown as { close?: () => Promise<void> }).close?.().finally(
+        () => process.exit(0),
+      );
+    });
+    setTimeout(() => process.exit(1), 10_000).unref();
+  }
+
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => shutdown("SIGINT"));
 });

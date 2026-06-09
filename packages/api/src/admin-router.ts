@@ -12,6 +12,7 @@
  */
 import { Router } from "express";
 import type { Request, Response } from "express";
+import { timingSafeEqual } from "node:crypto";
 import {
   enqueueJob,
   listPendingReviews,
@@ -32,7 +33,11 @@ export function createAdminRouter(db: Db): Router {
     }
     const raw = req.headers["x-admin-api-key"];
     const provided = Array.isArray(raw) ? raw[0] : raw;
-    if (provided !== apiKey) {
+    const keyBuf = Buffer.from(apiKey);
+    const providedBuf = Buffer.from(provided ?? "");
+    const keysMatch = keyBuf.length === providedBuf.length &&
+      timingSafeEqual(keyBuf, providedBuf);
+    if (!keysMatch) {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }

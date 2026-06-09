@@ -114,6 +114,6 @@ The loop only terminates when a review pass finds zero new gaps to add.
 
 - [x] **T-code regression test** — add an eval assertion that no string matching `/T\d{4}/` appears in `what_happened`, `generalised_pattern.title`, `generalised_pattern.chain_summary`, or any `gap` text in the M&S reconstruction output. AC: test passes; if a T-code is reintroduced in engine prose, the test fails.
 
-- [ ] **Timing-safe API key comparison** — `!==` comparison is vulnerable to timing attacks. AC: `crypto.timingSafeEqual()` used for API key comparison in admin-router middleware.
+- [x] **Timing-safe API key comparison** — `!==` comparison is vulnerable to timing attacks. AC: `crypto.timingSafeEqual()` used for API key comparison in admin-router middleware.
 
-- [ ] **Graceful shutdown** — PGlite holds file handles; no SIGTERM handler. AC: `SIGTERM` and `SIGINT` close the database before exiting; server drains inflight requests.
+- [x] **Graceful shutdown** — PGlite holds file handles; no SIGTERM handler. AC: `SIGTERM` and `SIGINT` close the database before exiting; server drains inflight requests.
