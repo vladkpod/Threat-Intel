@@ -202,7 +202,7 @@ export const SourceDocument = z.object({
   primary: z.boolean(),
   derivative_of: z.string().nullable().default(null),
   incentive_bias: z.string().nullable().default(null),
-  text: z.string(),
+  text: z.string().max(100_000),
 });
 export type SourceDocument = z.infer<typeof SourceDocument>;
 
@@ -218,9 +218,9 @@ export const Framework = z.enum(["CIS_v8", "NIST_CSF_2", "CAF"]);
 export type Framework = z.infer<typeof Framework>;
 
 export const ReconstructionInput = z.object({
-  incident_name: z.string(),
+  incident_name: z.string().min(1).max(256),
   framework: Framework.default("CIS_v8"),
   client_profile: ClientProfile.nullable().default(null),
-  incident_sources: z.array(SourceDocument),
+  incident_sources: z.array(SourceDocument).min(1).max(100),
 });
 export type ReconstructionInput = z.infer<typeof ReconstructionInput>;

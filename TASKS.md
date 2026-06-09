@@ -82,6 +82,14 @@ The loop only terminates when a review pass finds zero new gaps to add.
 
 - [x] **Startup secret validation** — validate `ADMIN_API_KEY` at server start; if absent, log a clear error and exit with code 1. AC: starting the server without `ADMIN_API_KEY` set prints a descriptive error and exits.
 
+- [x] **Input length validation** — `SourceDocument.text` and `incident_sources` array have no size bounds; large payloads can exhaust memory. AC: `z.string().max(100_000)` on `SourceDocument.text`; `z.array(...).max(100)` on `incident_sources`; oversized input returns 400, not 500.
+
+- [x] **CORS origin env var** — CORS origin hardcoded to `http://localhost:5173` breaks production. AC: `CORS_ORIGIN` env var read at startup; falls back to localhost; `.env.example` updated.
+
+- [x] **Pagination cursor bounds** — cursor accepts 0 or negative integers, querying all rows. AC: `z.number().int().positive()` on cursor; negative/zero cursor returns 400.
+
+- [x] **Verdict logic unit tests** — `packages/engine/src/verdict.ts` has no isolated unit tests; verdict is critical to product. AC: tests cover (a) all controls blocked → would_likely_succeed; (b) prevent-axis break → would_likely_fail; (c) detect-axis break registered; (d) empty chain → indeterminate.
+
 ## P3 — Polish
 
 - [x] **M8 negation-aware extraction** — sentence-level negation pre-filter before 
@@ -105,3 +113,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
 - [x] **STIX bundle caching** — `fetchSectorView()` fetches the ATT&CK STIX bundle on every call. Cache the parsed bundle in module scope with a 1-hour TTL. AC: two calls within 1 hour result in only one network request to the STIX URL.
 
 - [x] **T-code regression test** — add an eval assertion that no string matching `/T\d{4}/` appears in `what_happened`, `generalised_pattern.title`, `generalised_pattern.chain_summary`, or any `gap` text in the M&S reconstruction output. AC: test passes; if a T-code is reintroduced in engine prose, the test fails.
+
+- [ ] **Timing-safe API key comparison** — `!==` comparison is vulnerable to timing attacks. AC: `crypto.timingSafeEqual()` used for API key comparison in admin-router middleware.
+
+- [ ] **Graceful shutdown** — PGlite holds file handles; no SIGTERM handler. AC: `SIGTERM` and `SIGINT` close the database before exiting; server drains inflight requests.

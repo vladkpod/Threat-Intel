@@ -11,7 +11,7 @@ export const appRouter = router({
       .input(ReconstructionInput)
       .mutation(({ input }) => reconstruct(input)),
     list: publicProcedure
-      .input(z.object({ cursor: z.number().optional() }).optional())
+      .input(z.object({ cursor: z.number().int().positive().optional() }).optional())
       .query(async ({ ctx, input }) => {
         const PAGE_SIZE = 20;
         const cursor = input?.cursor;

@@ -9,7 +9,8 @@ import { createAdminRouter } from "./admin-router.js";
 import { createMigratedDb } from "@store";
 
 const app = express();
-app.use(cors({ origin: "http://localhost:5173" }));
+const corsOrigin = process.env["CORS_ORIGIN"] ?? "http://localhost:5173";
+app.use(cors({ origin: corsOrigin }));
 app.use(express.json());
 
 const reconstructionRateLimit = rateLimit({
