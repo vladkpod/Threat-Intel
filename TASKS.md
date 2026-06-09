@@ -90,6 +90,12 @@ The loop only terminates when a review pass finds zero new gaps to add.
 
 - [x] **Verdict logic unit tests** — `packages/engine/src/verdict.ts` has no isolated unit tests; verdict is critical to product. AC: tests cover (a) all controls blocked → would_likely_succeed; (b) prevent-axis break → would_likely_fail; (c) detect-axis break registered; (d) empty chain → indeterminate.
 
+- [x] **Validate `result_json` on DB read** — `row.result_json as unknown as ReconstructionOutput` in `router.ts` bypasses Zod; schema-drifted rows silently produce wrong output. AC: `ReconstructionOutput.parse()` called on read; a row with missing required fields surfaces a 500, not corrupt data.
+
+- [x] **Admin-router body Zod validation** — `req.body` cast without validation in approve/reject routes; malformed body causes type confusion. AC: Zod schema validates `reviewer` and `reconstruction_input` before use; invalid shape returns 400.
+
+- [x] **Breaking-controls axis cast validation** — `link.score_category ?? "prevent"` cast as `DefensiveAxis` without checking valid values; CTID data with unexpected category silently produces wrong axis. AC: validate against `["prevent","detect","respond"]` and fall back to "prevent" with an explicit guard.
+
 ## P3 — Polish
 
 - [x] **M8 negation-aware extraction** — sentence-level negation pre-filter before 
@@ -117,3 +123,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
 - [x] **Timing-safe API key comparison** — `!==` comparison is vulnerable to timing attacks. AC: `crypto.timingSafeEqual()` used for API key comparison in admin-router middleware.
 
 - [x] **Graceful shutdown** — PGlite holds file handles; no SIGTERM handler. AC: `SIGTERM` and `SIGINT` close the database before exiting; server drains inflight requests.
+
+- [ ] **Schema bounds unit test** — no test verifies that oversized `SourceDocument.text` or excess `incident_sources` items trigger a Zod validation error. AC: test asserts that `ReconstructionInput.parse()` throws when text exceeds 100 KB or sources exceed 100 items.
+
+- [ ] **Generalisation unit tests** — `generalise()` in `generalisation.ts` has no isolated unit tests. AC: tests cover (a) empty chain produces empty pattern; (b) all steps produce title/chain_summary without T-codes; (c) control gaps are well-formed.

@@ -56,11 +56,19 @@ export function getBreakingControls(techniqueId: string): BreakingControl[] {
     ];
   }
 
+  const VALID_AXES = new Set<BreakingControl["axis"]>(["prevent", "detect", "respond"]);
+
   // CTID has a complete mapping: return those controls as CTID-mapped.
-  return c.completeControlsFor(techniqueId).map((link) => ({
-    axis: (link.score_category ?? "prevent") as BreakingControl["axis"],
-    description: link.control_description,
-    framework_ref: link.control_id,
-    mapping_basis: "CTID-mapped" as const,
-  }));
+  return c.completeControlsFor(techniqueId).map((link) => {
+    const rawAxis = link.score_category ?? "prevent";
+    const axis: BreakingControl["axis"] = VALID_AXES.has(rawAxis as BreakingControl["axis"])
+      ? (rawAxis as BreakingControl["axis"])
+      : "prevent";
+    return {
+      axis,
+      description: link.control_description,
+      framework_ref: link.control_id,
+      mapping_basis: "CTID-mapped" as const,
+    };
+  });
 }

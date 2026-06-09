@@ -13,6 +13,8 @@
 import { Router } from "express";
 import type { Request, Response } from "express";
 import { timingSafeEqual } from "node:crypto";
+import { z } from "zod";
+import { ReconstructionInput } from "@engine";
 import {
   enqueueJob,
   listPendingReviews,
@@ -21,6 +23,15 @@ import {
 } from "@store";
 import type { Db } from "@store";
 import type { ReconstructionTriggeredPayload } from "@queue";
+
+const ApproveBody = z.object({
+  reviewer: z.string().optional(),
+  reconstruction_input: ReconstructionInput,
+});
+
+const RejectBody = z.object({
+  reviewer: z.string().optional(),
+});
 
 export function createAdminRouter(db: Db): Router {
   const router = Router();
@@ -81,17 +92,12 @@ export function createAdminRouter(db: Db): Router {
       return;
     }
 
-    const body = req.body as {
-      reviewer?: string;
-      reconstruction_input?: unknown;
-    };
-    const reviewer = body.reviewer ?? "admin";
-    const reconstructionInput = body.reconstruction_input;
-
-    if (!reconstructionInput) {
-      res.status(400).json({ error: "reconstruction_input is required" });
+    const bodyResult = ApproveBody.safeParse(req.body);
+    if (!bodyResult.success) {
+      res.status(400).json({ error: bodyResult.error.message });
       return;
     }
+    const { reviewer = "admin", reconstruction_input: reconstructionInput } = bodyResult.data;
 
     void (async () => {
       const review = await getReviewItem(db, id);
@@ -109,7 +115,7 @@ export function createAdminRouter(db: Db): Router {
       const jobPayload: ReconstructionTriggeredPayload = {
         review_queue_id: id,
         reconstruction_input:
-          reconstructionInput as ReconstructionTriggeredPayload["reconstruction_input"],
+          reconstructionInput as unknown as ReconstructionTriggeredPayload["reconstruction_input"],
       };
 
       const job = await enqueueJob(db, "reconstruction.triggered", jobPayload);
@@ -136,8 +142,12 @@ export function createAdminRouter(db: Db): Router {
       return;
     }
 
-    const body = req.body as { reviewer?: string };
-    const reviewer = body.reviewer ?? "admin";
+    const bodyResult = RejectBody.safeParse(req.body);
+    if (!bodyResult.success) {
+      res.status(400).json({ error: bodyResult.error.message });
+      return;
+    }
+    const { reviewer = "admin" } = bodyResult.data;
 
     void setReviewItemStatus(db, id, "rejected", reviewer, null)
       .then((item) => res.json(item))

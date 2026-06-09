@@ -4,7 +4,6 @@ import { IncidentFeedCard } from "@/components/IncidentFeedCard.js";
 import { Button } from "@/components/ui/button.js";
 import { Card, CardContent } from "@/components/ui/card.js";
 import { Textarea } from "@/components/ui/textarea.js";
-import type { ReconstructionOutput } from "../../../engine/src/schema.js";
 
 interface Props {
   onSelectIncident: (id: number) => void;
@@ -122,7 +121,7 @@ export function FeedPage({ onSelectIncident }: Props) {
                 incidentName={item.incident_name}
                 incidentDate={item.incident_date ?? null}
                 sector={item.sector ?? null}
-                result={item.result_json as unknown as ReconstructionOutput}
+                result={item.result_json}
                 onClick={onSelectIncident}
               />
             ))}

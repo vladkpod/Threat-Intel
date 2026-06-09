@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { reconstruct, ReconstructionInput } from "@engine";
-import type { ReconstructionOutput } from "@engine";
+import { reconstruct, ReconstructionInput, ReconstructionOutput } from "@engine";
 import { fetchSectorView } from "@sector";
 import { getStalenessCaveatsForIncident } from "@store";
 import { router, publicProcedure } from "./trpc.js";
@@ -40,8 +39,12 @@ export const appRouter = router({
           cursor !== undefined ? [cursor] : [],
         );
         const hasMore = res.rows.length > PAGE_SIZE;
-        const items = hasMore ? res.rows.slice(0, PAGE_SIZE) : res.rows;
-        const nextCursor = hasMore ? items[items.length - 1]?.id ?? null : null;
+        const rawItems = hasMore ? res.rows.slice(0, PAGE_SIZE) : res.rows;
+        const items = rawItems.map((row) => ({
+          ...row,
+          result_json: ReconstructionOutput.parse(row.result_json),
+        }));
+        const nextCursor = hasMore ? rawItems[rawItems.length - 1]?.id ?? null : null;
         return { items, nextCursor };
       }),
     get: publicProcedure
@@ -67,7 +70,7 @@ export const appRouter = router({
         // M6 decay rule: inject staleness caveats on read (not stored in result_json).
         const staleCaveats = await getStalenessCaveatsForIncident(ctx.db, row.incident_id);
 
-        const result = row.result_json as unknown as ReconstructionOutput;
+        const result = ReconstructionOutput.parse(row.result_json);
         const mergedResult: ReconstructionOutput = staleCaveats.length > 0
           ? {
               ...result,
