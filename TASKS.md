@@ -49,7 +49,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
   chain in plain English, breaking controls, self-assessment questions with blank 
   answer boxes, caveats. No T-codes. AC: PDF downloads with all five sections.
 
-- [ ] **Persistent self-assessment** — persist toggle state to localStorage keyed 
+- [x] **Persistent self-assessment** — persist toggle state to localStorage keyed 
   by `reconstruction_results.id`. Rehydrate on mount. AC: toggle a question, 
   reload, state preserved.
 

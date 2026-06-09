@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -75,11 +76,33 @@ function EntryCard({ entry, index }: { entry: Entry; index: number }) {
   );
 }
 
+const STORAGE_KEY_PREFIX = "self-assessment-open:";
+
 export function SelfAssessmentPanel({
   entries,
+  reconstructionId,
 }: {
   entries: ReconstructionOutput["self_assessment"];
+  reconstructionId: number;
 }) {
+  const storageKey = `${STORAGE_KEY_PREFIX}${reconstructionId}`;
+  const [openItems, setOpenItems] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      return raw ? (JSON.parse(raw) as string[]) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(openItems));
+    } catch {
+      // localStorage unavailable — silently ignore
+    }
+  }, [openItems, storageKey]);
+
   if (entries.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
@@ -89,7 +112,12 @@ export function SelfAssessmentPanel({
   }
 
   return (
-    <Accordion type="multiple" className="w-full">
+    <Accordion
+      type="multiple"
+      value={openItems}
+      onValueChange={setOpenItems}
+      className="w-full"
+    >
       {entries.map((entry, i) => (
         <EntryCard key={i} entry={entry} index={i} />
       ))}

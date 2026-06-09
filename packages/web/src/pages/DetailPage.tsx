@@ -158,7 +158,7 @@ export function DetailPage({ incidentId, onBack }: Props) {
 
         <section>
           <h2 className="text-lg font-semibold mb-3">Self-Assessment Questionnaire</h2>
-          <SelfAssessmentPanel entries={out.self_assessment} />
+          <SelfAssessmentPanel entries={out.self_assessment} reconstructionId={incidentId} />
         </section>
 
         {out.version_log.length > 0 && (
