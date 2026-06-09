@@ -83,7 +83,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
 - [x] **Responsive layout** — verify layout at 1280px and 1440px breakpoints. 
   Fix any overflow or broken layouts. AC: no horizontal scroll at either width.
 
-- [ ] **Focus states** — all interactive elements have visible focus rings. 
+- [x] **Focus states** — all interactive elements have visible focus rings. 
   AC: keyboard tab through the full feed → detail → self-assessment journey 
   without losing focus visibility.
 

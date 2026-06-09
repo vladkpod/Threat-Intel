@@ -60,8 +60,16 @@ export function IncidentFeedCard({ id, incidentName, incidentDate, sector, resul
 
   return (
     <Card
-      className={`cursor-pointer transition-all hover:shadow-md hover:border-l-[6px] ${borderClass}`}
+      className={`cursor-pointer transition-all hover:shadow-md hover:border-l-[6px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${borderClass}`}
+      tabIndex={0}
+      role="button"
       onClick={() => onClick(id)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick(id);
+        }
+      }}
     >
       <CardHeader className="pb-2">
         <div className="flex items-start gap-3">

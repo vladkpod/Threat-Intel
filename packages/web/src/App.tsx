@@ -39,7 +39,7 @@ export function App() {
                   key={n.id}
                   onClick={() => setPage(n.id)}
                   className={cn(
-                    "px-4 py-1.5 text-sm rounded-full transition-colors",
+                    "px-4 py-1.5 text-sm rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900",
                     page === n.id
                       ? "bg-white text-gray-900 font-semibold"
                       : "text-gray-300 hover:text-white hover:bg-white/10",
