@@ -49,7 +49,7 @@ export function getBreakingControls(techniqueId: string): BreakingControl[] {
     return [
       {
         axis: "prevent",
-        description: `Consult ATT&CK Mitigations for ${techniqueId} — no CTID 800-53 mapping exists and no analyst-asserted control is defined.`,
+        description: `No mapped control available for this technique. Review MITRE ATT&CK mitigations directly.`,
         framework_ref: `ATT&CK ${techniqueId}`,
         mapping_basis: "analyst-asserted",
       },

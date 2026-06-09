@@ -48,7 +48,7 @@ export const TECHNIQUE_SIGNATURES: readonly TechniqueSignature[] = [
       /T1566\.004|T1656/,
     ],
     describe: (labels) =>
-      `Attackers socially engineered an IT service-desk operator into resetting credentials, establishing initial access via voice-phishing and impersonation (T1566.004 / T1656). Source(s): ${labels.join("; ")}.`,
+      `Attackers socially engineered an IT service-desk operator into resetting credentials, establishing initial access via voice-phishing and impersonation. Source(s): ${labels.join("; ")}.`,
     insufficientEvidenceNote:
       "Insufficient public evidence for the initial-access stage.",
   },
@@ -68,7 +68,7 @@ export const TECHNIQUE_SIGNATURES: readonly TechniqueSignature[] = [
       /T1133/,
     ],
     describe: (labels) =>
-      `Attackers gained initial access via a compromised VPN account or external remote service using valid credentials (T1133 — External Remote Services). Source(s): ${labels.join("; ")}.`,
+      `Attackers gained initial access via a compromised VPN account or external remote service using valid credentials. Source(s): ${labels.join("; ")}.`,
     insufficientEvidenceNote:
       "Insufficient public evidence for VPN or external remote service initial access.",
   },

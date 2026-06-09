@@ -26,19 +26,19 @@ const TECHNIQUE_PRECONDITIONS: Record<string, string> = {
 
 const TECHNIQUE_GAP_TEMPLATES: Record<string, string> = {
   "T1566.004":
-    "Inferable from the observed chain that service-desk credential-reset processes lacked robust caller-identity verification at the point of initial access (consistent with T1566.004 / T1656 proceeding without detection or prevention).",
+    "Inferable from the observed chain that service-desk credential-reset processes lacked robust caller-identity verification at the point of initial access, allowing voice-phishing and impersonation to proceed without detection or prevention.",
   "T1656":
-    "Inferable from the observed chain that impersonation of legitimate users via social-engineering channels was not prevented or detected before a credential reset was completed (consistent with T1656).",
+    "Inferable from the observed chain that impersonation of legitimate users via social-engineering channels was not prevented or detected before a credential reset was completed.",
   "T1003.003":
-    "Inferable from the observed chain that domain credential databases were accessible following the initial-access foothold, with insufficient controls to prevent or alert on credential-dumping activity (consistent with T1003.003 proceeding).",
+    "Inferable from the observed chain that domain credential databases were accessible following the initial-access foothold, with insufficient controls to prevent or alert on credential-dumping activity.",
   "T1486":
-    "Inferable from the observed chain that virtualisation infrastructure was accessible from compromised domain credentials without sufficient segmentation, allowing ransomware deployment (consistent with T1486 impact proceeding).",
+    "Inferable from the observed chain that virtualisation infrastructure was accessible from compromised domain credentials without sufficient segmentation, allowing ransomware deployment.",
   "T1041":
     "Inferred from actor-asserted claims: exfiltration paths may have been accessible from the compromised environment; this is an actor claim and is consistent with, but not confirmed by, victim-fact sources.",
 };
 
-function techniqueLabel(technique: string, tactic: string): string {
-  return `${technique} (${tactic.replace(/ \(TA\d+\)/, "")})`;
+function techniqueLabel(_technique: string, tactic: string): string {
+  return tactic.replace(/ \(TA\d+\)/, "");
 }
 
 export function generalise(steps: AttackChainStep[]): {
