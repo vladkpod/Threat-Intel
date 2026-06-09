@@ -87,7 +87,7 @@ export function generalise(steps: AttackChainStep[]): {
   const gaps: InferableControlGap[] = steps.map((s) => ({
     gap:
       TECHNIQUE_GAP_TEMPLATES[s.attack_technique] ??
-      `Inferred from the observed chain that controls for ${s.attack_technique} were insufficient to prevent or detect this step (consistent with the attack proceeding).`,
+      `Inferred from the observed chain that controls for the technique used in this step were insufficient to prevent or detect it (consistent with the attack proceeding).`,
     supports_step: [s.step],
     evidence_tier: s.evidence_tier,
   }));

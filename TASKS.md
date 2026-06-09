@@ -124,6 +124,6 @@ The loop only terminates when a review pass finds zero new gaps to add.
 
 - [x] **Graceful shutdown** — PGlite holds file handles; no SIGTERM handler. AC: `SIGTERM` and `SIGINT` close the database before exiting; server drains inflight requests.
 
-- [ ] **Schema bounds unit test** — no test verifies that oversized `SourceDocument.text` or excess `incident_sources` items trigger a Zod validation error. AC: test asserts that `ReconstructionInput.parse()` throws when text exceeds 100 KB or sources exceed 100 items.
+- [x] **Schema bounds unit test** — no test verifies that oversized `SourceDocument.text` or excess `incident_sources` items trigger a Zod validation error. AC: test asserts that `ReconstructionInput.parse()` throws when text exceeds 100 KB or sources exceed 100 items.
 
-- [ ] **Generalisation unit tests** — `generalise()` in `generalisation.ts` has no isolated unit tests. AC: tests cover (a) empty chain produces empty pattern; (b) all steps produce title/chain_summary without T-codes; (c) control gaps are well-formed.
+- [x] **Generalisation unit tests** — `generalise()` in `generalisation.ts` has no isolated unit tests. AC: tests cover (a) empty chain produces empty pattern; (b) all steps produce title/chain_summary without T-codes; (c) control gaps are well-formed.
