@@ -28,6 +28,15 @@ const adminRateLimit = rateLimit({
   message: { error: "Too many admin requests. Limit: 20 per hour." },
 });
 
+// Validate required secrets at startup — fail fast with a clear message.
+if (!process.env["ADMIN_API_KEY"]) {
+  console.error(
+    "FATAL: ADMIN_API_KEY environment variable is not set.\n" +
+    "Copy .env.example to .env and set a value before starting the server.",
+  );
+  process.exit(1);
+}
+
 const port = Number(process.env["PORT"] ?? 3001);
 
 // Anchor the data dir to the repo root (three levels up from packages/api/src/).

@@ -74,6 +74,14 @@ The loop only terminates when a review pass finds zero new gaps to add.
 - [x] **Rate limiting** — `express-rate-limit` on reconstruction endpoint (10/hour/IP) 
   and admin router (20/hour/IP). AC: 11th reconstruction request returns 429.
 
+- [?] **Add Incident form fix** — the form calls `reconstruction.run` which doesn't persist results; after "success" no incident appears in the feed. Options: route through review queue, or remove the form. See DECISIONS.md. Blocked on product owner decision.
+
+- [ ] **Admin auth test** — add integration test: unauthenticated request to any `/admin` route returns 401; request with correct `x-admin-api-key` returns 200. AC: two tests pass covering both cases.
+
+- [ ] **`reconstruction.list` pagination** — add `cursor`-based pagination to `reconstruction.list` (default page size 20). AC: query with no cursor returns first 20; `nextCursor` in response allows fetching the next page.
+
+- [ ] **Startup secret validation** — validate `ADMIN_API_KEY` at server start; if absent, log a clear error and exit with code 1. AC: starting the server without `ADMIN_API_KEY` set prints a descriptive error and exits.
+
 ## P3 — Polish
 
 - [x] **M8 negation-aware extraction** — sentence-level negation pre-filter before 
@@ -89,3 +97,11 @@ The loop only terminates when a review pass finds zero new gaps to add.
 
 - [x] **`npm audit`** — run audit, fix any high/critical vulnerabilities. 
   AC: `npm audit` returns 0 high or critical vulnerabilities.
+
+- [ ] **Remove ReconstructPage.tsx dead code** — `packages/web/src/pages/ReconstructPage.tsx` is not imported or rendered anywhere. AC: file removed; `npm run build`, typecheck, lint all pass.
+
+- [ ] **Aria-hidden decorative icons** — icons in `AttackChainView` (ShieldAlert, Eye, Zap, ChevronDown) are decorative (text labels present). Add `aria-hidden={true}` to each. AC: icons have `aria-hidden="true"` in rendered HTML.
+
+- [ ] **STIX bundle caching** — `fetchSectorView()` fetches the ATT&CK STIX bundle on every call. Cache the parsed bundle in module scope with a 1-hour TTL. AC: two calls within 1 hour result in only one network request to the STIX URL.
+
+- [ ] **T-code regression test** — add an eval assertion that no string matching `/T\d{4}/` appears in `what_happened`, `generalised_pattern.title`, `generalised_pattern.chain_summary`, or any `gap` text in the M&S reconstruction output. AC: test passes; if a T-code is reintroduced in engine prose, the test fails.

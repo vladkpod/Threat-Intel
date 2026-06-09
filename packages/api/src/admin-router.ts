@@ -30,7 +30,8 @@ export function createAdminRouter(db: Db): Router {
       res.status(503).json({ error: "ADMIN_API_KEY not configured" });
       return;
     }
-    const provided = req.headers["x-admin-api-key"];
+    const raw = req.headers["x-admin-api-key"];
+    const provided = Array.isArray(raw) ? raw[0] : raw;
     if (provided !== apiKey) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -49,7 +50,8 @@ export function createAdminRouter(db: Db): Router {
   });
 
   router.get("/review/:id", (req: Request, res: Response) => {
-    const id = parseInt(req.params["id"] ?? "", 10);
+    const rawId = req.params["id"];
+    const id = parseInt(Array.isArray(rawId) ? rawId[0] ?? "" : rawId ?? "", 10);
     if (isNaN(id)) {
       res.status(400).json({ error: "Invalid id" });
       return;
@@ -67,7 +69,8 @@ export function createAdminRouter(db: Db): Router {
 
   // Invariant 11: the sole code path that enqueues reconstruction.triggered.
   router.post("/review/:id/approve", (req: Request, res: Response) => {
-    const id = parseInt(req.params["id"] ?? "", 10);
+    const rawId = req.params["id"];
+    const id = parseInt(Array.isArray(rawId) ? rawId[0] ?? "" : rawId ?? "", 10);
     if (isNaN(id)) {
       res.status(400).json({ error: "Invalid id" });
       return;
@@ -121,7 +124,8 @@ export function createAdminRouter(db: Db): Router {
   });
 
   router.post("/review/:id/reject", (req: Request, res: Response) => {
-    const id = parseInt(req.params["id"] ?? "", 10);
+    const rawId = req.params["id"];
+    const id = parseInt(Array.isArray(rawId) ? rawId[0] ?? "" : rawId ?? "", 10);
     if (isNaN(id)) {
       res.status(400).json({ error: "Invalid id" });
       return;
