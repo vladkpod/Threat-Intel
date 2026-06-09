@@ -71,7 +71,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
 - [x] **Health check endpoint** — `GET /health` returns `{ status: "ok", db: "ok" }` 
   with DB connectivity check. AC: endpoint returns 200 with db status.
 
-- [ ] **Rate limiting** — `express-rate-limit` on reconstruction endpoint (10/hour/IP) 
+- [x] **Rate limiting** — `express-rate-limit` on reconstruction endpoint (10/hour/IP) 
   and admin router (20/hour/IP). AC: 11th reconstruction request returns 429.
 
 ## P3 — Polish

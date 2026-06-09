@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
@@ -10,6 +11,22 @@ import { createMigratedDb } from "@store";
 const app = express();
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
+
+const reconstructionRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many reconstruction requests. Limit: 10 per hour." },
+});
+
+const adminRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many admin requests. Limit: 20 per hour." },
+});
 
 const port = Number(process.env["PORT"] ?? 3001);
 
@@ -25,6 +42,11 @@ void createMigratedDb(dataDir).then((db) => {
   });
 
   app.use(
+    "/api/trpc/reconstruction.run",
+    reconstructionRateLimit,
+  );
+
+  app.use(
     "/api/trpc",
     createExpressMiddleware({
       router: appRouter,
@@ -32,7 +54,7 @@ void createMigratedDb(dataDir).then((db) => {
     }),
   );
 
-  app.use("/admin", createAdminRouter(db));
+  app.use("/admin", adminRateLimit, createAdminRouter(db));
 
   app.listen(port, () => {
     console.log(`API server listening on http://localhost:${port}`);
