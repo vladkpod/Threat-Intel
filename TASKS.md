@@ -60,7 +60,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
 - [x] **Verify decay → caveats path** — confirm `claim_staleness` rows surface in 
   `verdict.caveats[]`. AC: synthetic staleness row produces caveat in verdict output.
 
-- [ ] **README.md** — root-level README with: what the product is, prerequisites, 
+- [x] **README.md** — root-level README with: what the product is, prerequisites, 
   setup steps, how to run tests, how to run the eval suite, architecture overview. 
   AC: a developer with no prior context can set up and run the product from the README alone.
 
