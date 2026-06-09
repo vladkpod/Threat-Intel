@@ -87,5 +87,5 @@ The loop only terminates when a review pass finds zero new gaps to add.
   AC: keyboard tab through the full feed → detail → self-assessment journey 
   without losing focus visibility.
 
-- [ ] **`npm audit`** — run audit, fix any high/critical vulnerabilities. 
+- [x] **`npm audit`** — run audit, fix any high/critical vulnerabilities. 
   AC: `npm audit` returns 0 high or critical vulnerabilities.
