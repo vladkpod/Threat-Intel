@@ -6,13 +6,21 @@
 --   for all reconstruction inputs derived from that candidate.
 -- M6 decay rule: claim_staleness is a caveat flag only — confidence is never mutated.
 
-CREATE TYPE job_status AS ENUM ('pending', 'running', 'completed', 'failed');
-CREATE TYPE review_status AS ENUM ('pending', 'approved', 'rejected', 'deferred');
-CREATE TYPE review_type AS ENUM ('new-incident', 'verdict-change');
+DO $$ BEGIN
+  CREATE TYPE job_status AS ENUM ('pending', 'running', 'completed', 'failed');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE review_status AS ENUM ('pending', 'approved', 'rejected', 'deferred');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE review_type AS ENUM ('new-incident', 'verdict-change');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- Postgres-native job queue, pg-boss-inspired (CLAUDE.md M6: no Redis/BullMQ).
 -- Dequeue uses UPDATE ... WHERE id = (SELECT ... LIMIT 1) for atomic claim.
-CREATE TABLE jobs (
+CREATE TABLE IF NOT EXISTS jobs (
   id           bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   job_type     text NOT NULL,
   payload      jsonb NOT NULL DEFAULT '{}',
@@ -25,13 +33,13 @@ CREATE TABLE jobs (
   created_at   timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_jobs_dequeue ON jobs (job_type, run_after) WHERE status = 'pending';
+CREATE INDEX IF NOT EXISTS idx_jobs_dequeue ON jobs (job_type, run_after) WHERE status = 'pending';
 
 -- Human review gate (Invariant 11).
 -- Rows enter via the incident.detected worker.
 -- The ONLY code path that leads to reconstruction is POST /admin/review/:id/approve,
 -- which is the sole caller of enqueue('reconstruction.triggered').
-CREATE TABLE review_queue (
+CREATE TABLE IF NOT EXISTS review_queue (
   id                    bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   feed_job_id           bigint REFERENCES jobs (id),
   type                  review_type NOT NULL,
@@ -49,7 +57,7 @@ CREATE TABLE review_queue (
 -- Reconstruction results — persisted after reconstruction.triggered completes.
 -- The critical_path_techniques array lets the re-reconstruction trigger check
 -- whether a later tier upgrade touches the critical path.
-CREATE TABLE reconstruction_results (
+CREATE TABLE IF NOT EXISTS reconstruction_results (
   id                       bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   incident_id              bigint NOT NULL REFERENCES incidents (id),
   review_queue_id          bigint NOT NULL REFERENCES review_queue (id),
@@ -62,7 +70,7 @@ CREATE TABLE reconstruction_results (
 -- Claim staleness (M6 decay rule).
 -- REPORTED-tier open claims older than 30 days get a caveat row here.
 -- The confidence column in claim_versions is NOT touched — ever.
-CREATE TABLE claim_staleness (
+CREATE TABLE IF NOT EXISTS claim_staleness (
   id               bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   claim_id         bigint NOT NULL REFERENCES claims (id) ON DELETE CASCADE,
   claim_version_id bigint NOT NULL REFERENCES claim_versions (id) ON DELETE CASCADE,

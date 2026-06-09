@@ -11,20 +11,34 @@
 --    computed at ingest and persisted onto the version + its source links, so
 --    they are inspectable rather than recomputed implicitly.
 
-CREATE TYPE evidence_tier AS ENUM ('CONFIRMED', 'REPORTED', 'INFERRED', 'ANALOGOUS');
-CREATE TYPE independence_group AS ENUM ('G1', 'G2', 'G3', 'G4', 'B5', 'B6');
-CREATE TYPE admissibility AS ENUM ('victim_fact', 'actor_inferred', 'excluded');
-CREATE TYPE claim_subject AS ENUM ('victim_fact', 'actor');
-CREATE TYPE version_reason AS ENUM ('initial', 'supersession', 'decay', 'recompute');
+DO $$ BEGIN
+  CREATE TYPE evidence_tier AS ENUM ('CONFIRMED', 'REPORTED', 'INFERRED', 'ANALOGOUS');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE TABLE incidents (
+DO $$ BEGIN
+  CREATE TYPE independence_group AS ENUM ('G1', 'G2', 'G3', 'G4', 'B5', 'B6');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE admissibility AS ENUM ('victim_fact', 'actor_inferred', 'excluded');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE claim_subject AS ENUM ('victim_fact', 'actor');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE version_reason AS ENUM ('initial', 'supersession', 'decay', 'recompute');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+CREATE TABLE IF NOT EXISTS incidents (
   id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   slug        text NOT NULL UNIQUE,
   name        text NOT NULL,
   created_at  timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE sources (
+CREATE TABLE IF NOT EXISTS sources (
   id                   bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   incident_id          bigint NOT NULL REFERENCES incidents (id) ON DELETE CASCADE,
   external_id          text NOT NULL,                 -- e.g. 'MS-001'
@@ -44,7 +58,7 @@ CREATE TABLE sources (
   UNIQUE (incident_id, external_id)
 );
 
-CREATE TABLE claims (
+CREATE TABLE IF NOT EXISTS claims (
   id              bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   incident_id     bigint NOT NULL REFERENCES incidents (id) ON DELETE CASCADE,
   claim_key       text NOT NULL,                      -- stable key, e.g. 'initial-access:helpdesk-reset'
@@ -56,7 +70,7 @@ CREATE TABLE claims (
   UNIQUE (incident_id, claim_key)
 );
 
-CREATE TABLE claim_versions (
+CREATE TABLE IF NOT EXISTS claim_versions (
   id                  bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   claim_id            bigint NOT NULL REFERENCES claims (id) ON DELETE CASCADE,
   version_no          int NOT NULL,
@@ -72,11 +86,11 @@ CREATE TABLE claim_versions (
 );
 
 -- One current version per claim.
-CREATE UNIQUE INDEX idx_claim_versions_current
+CREATE UNIQUE INDEX IF NOT EXISTS idx_claim_versions_current
   ON claim_versions (claim_id)
   WHERE valid_to IS NULL;
 
-CREATE TABLE claim_version_sources (
+CREATE TABLE IF NOT EXISTS claim_version_sources (
   claim_version_id           bigint NOT NULL REFERENCES claim_versions (id) ON DELETE CASCADE,
   source_id                  bigint NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
   -- Whether this source counts toward the corroboration counter (Invariant 5).

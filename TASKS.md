@@ -127,3 +127,9 @@ The loop only terminates when a review pass finds zero new gaps to add.
 - [x] **Schema bounds unit test** — no test verifies that oversized `SourceDocument.text` or excess `incident_sources` items trigger a Zod validation error. AC: test asserts that `ReconstructionInput.parse()` throws when text exceeds 100 KB or sources exceed 100 items.
 
 - [x] **Generalisation unit tests** — `generalise()` in `generalisation.ts` has no isolated unit tests. AC: tests cover (a) empty chain produces empty pattern; (b) all steps produce title/chain_summary without T-codes; (c) control gaps are well-formed.
+
+- [x] **`getBreakingControls()` unit tests** — critical CTID → analyst-asserted fallback logic (Invariant 4) has no isolated tests. AC: tests cover (a) non-mappable technique returns analyst-asserted controls; (b) known CTID technique returns CTID-mapped controls with valid axis; (c) fully unknown technique returns ATT&CK pointer.
+
+- [x] **`selfAssess()` unit tests** — self-assessment generation has no isolated tests; testability assignment and fallback paths uncovered. AC: tests cover (a) known technique produces analyst-asserted entries with correct testability; (b) unknown technique produces fallback entry; (c) entries carry correct `evidence_tier_of_underlying_step`.
+
+- [x] **Migration idempotency** — `0001_init.sql` and `0002_m6.sql` use bare `CREATE TYPE`/`CREATE TABLE` without `IF NOT EXISTS`; re-running after a partial failure errors. AC: all DDL statements in both files use `IF NOT EXISTS`; `createMigratedDb()` succeeds when called twice against the same DB.
