@@ -64,7 +64,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
   setup steps, how to run tests, how to run the eval suite, architecture overview. 
   AC: a developer with no prior context can set up and run the product from the README alone.
 
-- [ ] **CI pipeline** — `.github/workflows/ci.yml` running `npm test`, `npm run eval`, 
+- [x] **CI pipeline** — `.github/workflows/ci.yml` running `npm test`, `npm run eval`, 
   `npm run typecheck`, `npm run lint` on push and PR to main. AC: pipeline runs 
   and passes on current main.
 
