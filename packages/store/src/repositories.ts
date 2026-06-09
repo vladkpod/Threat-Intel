@@ -441,3 +441,19 @@ export async function getStalenessForClaim(
   );
   return res.rows;
 }
+
+/** Return all active staleness caveats for an incident (M6 decay rule: on read). */
+export async function getStalenessCaveatsForIncident(
+  db: Db,
+  incidentId: number,
+): Promise<string[]> {
+  const res = await db.query<{ caveat: string }>(
+    `SELECT cs.caveat
+     FROM claim_staleness cs
+     JOIN claim_versions cv ON cv.id = cs.claim_version_id
+     JOIN claims c ON c.id = cv.claim_id
+     WHERE c.incident_id = $1 AND cv.valid_to IS NULL`,
+    [incidentId],
+  );
+  return res.rows.map((r) => r.caveat);
+}

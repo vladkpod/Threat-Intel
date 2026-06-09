@@ -57,7 +57,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
   Add keyword-based fallback from group descriptions. Fix version label to show 
   "ATT&CK 16.1". AC: ≥3 sector cards visible, version label correct.
 
-- [ ] **Verify decay → caveats path** — confirm `claim_staleness` rows surface in 
+- [x] **Verify decay → caveats path** — confirm `claim_staleness` rows surface in 
   `verdict.caveats[]`. AC: synthetic staleness row produces caveat in verdict output.
 
 - [ ] **README.md** — root-level README with: what the product is, prerequisites, 

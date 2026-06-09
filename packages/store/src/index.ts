@@ -22,5 +22,6 @@ export {
   flagClaimStaleness,
   getClaimStaleness,
   getStalenessForClaim,
+  getStalenessCaveatsForIncident,
   type CreateReviewItemInput,
 } from "./repositories.js";
