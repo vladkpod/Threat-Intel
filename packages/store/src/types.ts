@@ -10,6 +10,8 @@ export interface IncidentRow {
   id: number;
   slug: string;
   name: string;
+  incident_date: string | null;
+  sector: string | null;
 }
 
 export interface SourceInput {

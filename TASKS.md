@@ -24,11 +24,11 @@ The loop only terminates when a review pass finds zero new gaps to add.
   pattern titles, breaking controls gap messages. AC: no string matching `/T\d{4}/` 
   visible in any non-technical UI surface.
 
-- [ ] **Fix incident dates** — add `incident_date` column to `incidents` table, 
+- [x] **Fix incident dates** — add `incident_date` column to `incidents` table, 
   populate seed with real dates (M&S: 2025-04-22, BL: 2023-10-28), show on feed 
   card instead of `created_at`. AC: M&S card shows "April 2025", BL shows "October 2023".
 
-- [ ] **Sector inference** — add `sector` column to `incidents` table, infer from 
+- [x] **Sector inference** — add `sector` column to `incidents` table, infer from 
   incident name/chain keywords via static map. AC: both feed cards show a sector, 
   not "Sector unspecified".
 

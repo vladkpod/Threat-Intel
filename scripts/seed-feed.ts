@@ -22,13 +22,27 @@ import { reconstruct } from "@engine";
 // of which directory the script is invoked from.
 const DATA_DIR = fileURLToPath(new URL("../.pglite/data", import.meta.url));
 
-const FIXTURES = [
-  fileURLToPath(
-    new URL("../tests/eval/ms_2025/fixtures/sources_full.json", import.meta.url),
-  ),
-  fileURLToPath(
-    new URL("../tests/eval/bl_2023/fixtures/sources_full.json", import.meta.url),
-  ),
+interface FixtureMeta {
+  path: string;
+  incident_date: string;
+  sector: string;
+}
+
+const FIXTURES: FixtureMeta[] = [
+  {
+    path: fileURLToPath(
+      new URL("../tests/eval/ms_2025/fixtures/sources_full.json", import.meta.url),
+    ),
+    incident_date: "2025-04-22",
+    sector: "Retail",
+  },
+  {
+    path: fileURLToPath(
+      new URL("../tests/eval/bl_2023/fixtures/sources_full.json", import.meta.url),
+    ),
+    incident_date: "2023-10-28",
+    sector: "Public Sector",
+  },
 ];
 
 console.log(`Clearing ${DATA_DIR}…`);
@@ -37,8 +51,8 @@ mkdirSync(DATA_DIR, { recursive: true });
 
 const db = await createMigratedDb(DATA_DIR);
 
-for (const fixturePath of FIXTURES) {
-  const fixture = JSON.parse(readFileSync(fixturePath, "utf8")) as {
+for (const fixtureMeta of FIXTURES) {
+  const fixture = JSON.parse(readFileSync(fixtureMeta.path, "utf8")) as {
     incident_name: string;
   };
 
@@ -62,7 +76,7 @@ for (const fixturePath of FIXTURES) {
     .toLowerCase()
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-]/g, "");
-  const incident = await createIncident(db, slug, fixture.incident_name);
+  const incident = await createIncident(db, slug, fixture.incident_name, fixtureMeta.incident_date, fixtureMeta.sector);
 
   const eb = result.verdict.earliest_breakable_step;
   const criticalPathEnd = eb ?? result.attack_chain.length;

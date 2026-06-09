@@ -15,8 +15,11 @@ export const appRouter = router({
         created_at: string;
         result_json: ReconstructionOutput;
         incident_name: string;
+        incident_date: string | null;
+        sector: string | null;
       }>(
-        `SELECT rr.id, rr.created_at, rr.result_json, i.name AS incident_name
+        `SELECT rr.id, rr.created_at, rr.result_json, i.name AS incident_name,
+                i.incident_date, i.sector
          FROM reconstruction_results rr
          JOIN incidents i ON i.id = rr.incident_id
          ORDER BY rr.created_at DESC`,

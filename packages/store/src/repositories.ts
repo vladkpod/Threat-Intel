@@ -28,12 +28,17 @@ export async function createIncident(
   db: Db,
   slug: string,
   name: string,
+  incidentDate?: string | null,
+  sector?: string | null,
 ): Promise<IncidentRow> {
   const res = await db.query<IncidentRow>(
-    `INSERT INTO incidents (slug, name) VALUES ($1, $2)
-     ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
-     RETURNING id, slug, name`,
-    [slug, name],
+    `INSERT INTO incidents (slug, name, incident_date, sector) VALUES ($1, $2, $3, $4)
+     ON CONFLICT (slug) DO UPDATE SET
+       name = EXCLUDED.name,
+       incident_date = COALESCE(EXCLUDED.incident_date, incidents.incident_date),
+       sector = COALESCE(EXCLUDED.sector, incidents.sector)
+     RETURNING id, slug, name, incident_date, sector`,
+    [slug, name, incidentDate ?? null, sector ?? null],
   );
   return res.rows[0]!;
 }

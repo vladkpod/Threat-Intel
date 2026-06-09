@@ -108,7 +108,8 @@ export function FeedPage({ onSelectIncident }: Props) {
                 key={item.id}
                 id={item.id}
                 incidentName={item.incident_name}
-                createdAt={item.created_at}
+                incidentDate={item.incident_date ?? null}
+                sector={item.sector ?? null}
                 result={item.result_json as unknown as ReconstructionOutput}
                 onClick={onSelectIncident}
               />

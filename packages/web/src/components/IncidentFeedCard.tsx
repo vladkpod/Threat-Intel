@@ -44,19 +44,18 @@ function deriveSummary(result: ReconstructionOutput): string {
 interface Props {
   id: number;
   incidentName: string;
-  createdAt: string;
+  incidentDate: string | null;
+  sector: string | null;
   result: ReconstructionOutput;
   onClick: (id: number) => void;
 }
 
-export function IncidentFeedCard({ id, incidentName, createdAt, result, onClick }: Props) {
+export function IncidentFeedCard({ id, incidentName, incidentDate, sector, result, onClick }: Props) {
   const summary = deriveSummary(result);
   const actor = deriveActor(result.incident.actor);
-  const date = new Date(createdAt).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  const date = incidentDate
+    ? new Date(incidentDate).toLocaleDateString("en-GB", { month: "long", year: "numeric" })
+    : null;
   const borderClass = severityBorderClass(result.verdict.result);
 
   return (
@@ -71,10 +70,8 @@ export function IncidentFeedCard({ id, incidentName, createdAt, result, onClick 
         </div>
         <div className="flex gap-2 text-sm text-muted-foreground mt-1">
           <span>{actor}</span>
-          <span>·</span>
-          <span className="italic">Sector unspecified</span>
-          <span>·</span>
-          <span>{date}</span>
+          {sector && <><span>·</span><span>{sector}</span></>}
+          {date && <><span>·</span><span>{date}</span></>}
         </div>
       </CardHeader>
       <CardContent>
