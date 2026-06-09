@@ -18,6 +18,12 @@ const port = Number(process.env["PORT"] ?? 3001);
 const REPO_ROOT = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../..");
 const dataDir = process.env["PGLITE_DATA_DIR"] ?? resolve(REPO_ROOT, ".pglite/data");
 void createMigratedDb(dataDir).then((db) => {
+  app.get("/health", (_req, res) => {
+    void db.query("SELECT 1")
+      .then(() => res.json({ status: "ok", db: "ok" }))
+      .catch(() => res.status(503).json({ status: "error", db: "unavailable" }));
+  });
+
   app.use(
     "/api/trpc",
     createExpressMiddleware({

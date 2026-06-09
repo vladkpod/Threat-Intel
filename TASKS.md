@@ -68,7 +68,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
   `npm run typecheck`, `npm run lint` on push and PR to main. AC: pipeline runs 
   and passes on current main.
 
-- [ ] **Health check endpoint** — `GET /health` returns `{ status: "ok", db: "ok" }` 
+- [x] **Health check endpoint** — `GET /health` returns `{ status: "ok", db: "ok" }` 
   with DB connectivity check. AC: endpoint returns 200 with db status.
 
 - [ ] **Rate limiting** — `express-rate-limit` on reconstruction endpoint (10/hour/IP) 
