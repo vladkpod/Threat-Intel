@@ -53,7 +53,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
   by `reconstruction_results.id`. Rehydrate on mount. AC: toggle a question, 
   reload, state preserved.
 
-- [ ] **Fix Sector View 0 sectors** — investigate `x-mitre-sectors` in STIX bundle.
+- [x] **Fix Sector View 0 sectors** — investigate `x-mitre-sectors` in STIX bundle.
   Add keyword-based fallback from group descriptions. Fix version label to show 
   "ATT&CK 16.1". AC: ≥3 sector cards visible, version label correct.
 
