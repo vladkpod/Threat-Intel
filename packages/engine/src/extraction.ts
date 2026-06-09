@@ -57,10 +57,31 @@ function groupStrength(src: SourceDocument): number {
     TIER_RANK[src.tier_ceiling];
 }
 
+// Sentence boundary split — covers typical prose and newlines.
+function splitSentences(text: string): string[] {
+  return text
+    .split(/(?<=[.?!])\s+|\n+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
+// Negation signals that invalidate a positive technique match within a sentence.
+const NEGATION_RE =
+  /\b(no evidence|no indication|no sign|not observed|not detected|did not|did n't|never|deny|denied|no reported|absence of|ruled out|without evidence|unconfirmed|could not confirm)\b/i;
+
+/**
+ * Returns true only if the sentence contains an affirmative pattern match.
+ * Sentences that also contain a negation signal are skipped (M8 negation filter).
+ */
+function sentenceMatchesSig(sentence: string, sig: TechniqueSignature): boolean {
+  if (!sig.patterns.some((p) => p.test(sentence))) return false;
+  return !NEGATION_RE.test(sentence);
+}
+
 /**
  * Determine whether a source text contains evidence for a technique signature.
- * Returns true if any pattern matches and the source's admissibility for the
- * claim's subject is not "excluded".
+ * Returns true if any non-negated sentence matches and the source's admissibility
+ * for the claim's subject is not "excluded".
  */
 function sourceMatchesSig(
   src: SourceDocument,
@@ -69,7 +90,8 @@ function sourceMatchesSig(
   const claimSubject = sig.subject === "victim_fact" ? "victim_fact" : "actor";
   const admitted = admitForClaim(src.independence_group, null, claimSubject);
   if (admitted === "excluded") return false;
-  return sig.patterns.some((p) => p.test(src.text));
+  const sentences = splitSentences(src.text);
+  return sentences.some((s) => sentenceMatchesSig(s, sig));
 }
 
 /** Build the corroboration input for a set of sources supporting a claim. */

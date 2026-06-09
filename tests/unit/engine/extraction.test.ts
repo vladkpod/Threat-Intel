@@ -181,6 +181,47 @@ describe("Invariant 1 — every emitted step anchors to a source (CI guard)", ()
     expect(ntds!.corroboration.independence_group_count).toBe(1);
   });
 
+  it("negation pre-filter: 'no evidence of T1003' does not produce a credential-access step", () => {
+    const out: ReconstructionOutput = reconstruct(
+      makeInput([
+        {
+          id: "NEG",
+          label: "Source with explicit negation",
+          independence_group: "G4",
+          tier_ceiling: "REPORTED",
+          primary: true,
+          derivative_of: null,
+          text: "Investigators found no evidence of NTDS.dit credential dumping. There is no indication that Active Directory databases were accessed.",
+        },
+      ]),
+    );
+    const credStep = out.attack_chain.find(
+      (s) => s.attack_technique === "T1003.003",
+    );
+    expect(credStep).toBeUndefined();
+  });
+
+  it("negation pre-filter: affirmative sentence still matches when negation is in a different sentence", () => {
+    const out: ReconstructionOutput = reconstruct(
+      makeInput([
+        {
+          id: "MIX",
+          label: "Source with negation in one sentence, positive in another",
+          independence_group: "G4",
+          tier_ceiling: "REPORTED",
+          primary: true,
+          derivative_of: null,
+          text: "Attackers obtained a copy of the NTDS.dit Active Directory database. There is no evidence of lateral movement to other domains.",
+        },
+      ]),
+    );
+    // NTDS.dit step should still be produced — the positive sentence is separate
+    const credStep = out.attack_chain.find(
+      (s) => s.attack_technique === "T1003.003",
+    );
+    expect(credStep).toBeDefined();
+  });
+
   it("derivative echoes collapse to primary and do not each count", () => {
     const out: ReconstructionOutput = reconstruct(
       makeInput([

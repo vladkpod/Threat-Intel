@@ -76,7 +76,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
 
 ## P3 — Polish
 
-- [ ] **M8 negation-aware extraction** — sentence-level negation pre-filter before 
+- [x] **M8 negation-aware extraction** — sentence-level negation pre-filter before 
   pattern matching on press sources. AC: "no evidence of T1003" does not produce 
   T1003 chain step; eval suite green.
 

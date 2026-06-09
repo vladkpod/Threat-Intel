@@ -76,4 +76,4 @@ older than the staleness threshold gets a caveats[] entry; its stored confidence
 is unchanged. Do not confuse with supersession (TC-5, already done).
 
 ## Known limitations
-Extraction pattern matching is negation-blind — phrases like "no evidence of X" will register as positive technique detections; negation-aware extraction is scoped to M7.
+Sentence-level negation filtering (M8) is implemented via a static signal list (`NEGATION_RE` in `extraction.ts`). Complex constructs ("evidence suggesting the absence of X") or double negatives may still produce false positives; extend `NEGATION_RE` as new patterns are observed.
