@@ -23,9 +23,18 @@ import type { ReconstructionTriggeredPayload } from "@queue";
 
 export function createAdminRouter(db: Db): Router {
   const router = Router();
-  router.use((req: Request, _res: Response, next: () => void) => {
-    // Placeholder for auth middleware — insert token/IP check here before prod.
-    void req;
+
+  router.use((req: Request, res: Response, next: () => void) => {
+    const apiKey = process.env["ADMIN_API_KEY"];
+    if (!apiKey) {
+      res.status(503).json({ error: "ADMIN_API_KEY not configured" });
+      return;
+    }
+    const provided = req.headers["x-admin-api-key"];
+    if (provided !== apiKey) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
     next();
   });
 

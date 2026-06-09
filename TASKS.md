@@ -32,7 +32,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
   incident name/chain keywords via static map. AC: both feed cards show a sector, 
   not "Sector unspecified".
 
-- [ ] **Admin router auth** — API key middleware on all `/admin` routes. Read 
+- [x] **Admin router auth** — API key middleware on all `/admin` routes. Read 
   `ADMIN_API_KEY` from env, reject without `x-admin-api-key` header with 401. 
   Add to `.env.example`. AC: unauthenticated request returns 401.
 

@@ -5,3 +5,5 @@ dist/
 coverage/
 *.log
 .pglite/
+.env
+.env.local
