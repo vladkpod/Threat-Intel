@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { trpc } from "@/lib/trpc.js";
 import { AttackChainView } from "@/components/AttackChainView.js";
 import { SelfAssessmentPanel } from "@/components/SelfAssessmentPanel.js";
@@ -6,6 +7,8 @@ import { EvidenceBadge } from "@/components/EvidenceBadge.js";
 import { SeverityBadge } from "@/components/SeverityBadge.js";
 import { Card, CardContent } from "@/components/ui/card.js";
 import { Button } from "@/components/ui/button.js";
+import { IncidentReportPDF } from "@/components/IncidentReportPDF.js";
+import { pdf } from "@react-pdf/renderer";
 import type { ReconstructionOutput } from "../../../engine/src/schema.js";
 
 interface Props {
@@ -48,7 +51,29 @@ export function DetailPage({ incidentId, onBack }: Props) {
     );
   }
 
-  const out = query.data as unknown as ReconstructionOutput;
+  const [exporting, setExporting] = useState(false);
+
+  const data = query.data;
+  const out = data?.result as unknown as ReconstructionOutput;
+  const incidentDate = data?.incident_date ?? null;
+
+  async function handleExport() {
+    if (!out) return;
+    setExporting(true);
+    try {
+      const blob = await pdf(
+        <IncidentReportPDF out={out} incidentDate={incidentDate} />,
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${out.incident.name.replace(/\s+/g, "_")}_report.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -57,10 +82,13 @@ export function DetailPage({ incidentId, onBack }: Props) {
           <Button variant="ghost" size="sm" onClick={onBack}>
             ← Back
           </Button>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-1">
             <h1 className="text-xl font-bold tracking-tight">{out.incident.name}</h1>
             <SeverityBadge result={out.verdict.result} />
           </div>
+          <Button variant="outline" size="sm" onClick={() => void handleExport()} disabled={exporting}>
+            {exporting ? "Generating…" : "Export Report"}
+          </Button>
         </div>
       </header>
 

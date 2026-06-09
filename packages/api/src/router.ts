@@ -29,11 +29,26 @@ export const appRouter = router({
     get: publicProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ ctx, input }) => {
-        const res = await ctx.db.query<{ result_json: ReconstructionOutput }>(
-          `SELECT result_json FROM reconstruction_results WHERE id = $1`,
+        const res = await ctx.db.query<{
+          result_json: ReconstructionOutput;
+          incident_date: string | null;
+          sector: string | null;
+          incident_name: string;
+        }>(
+          `SELECT rr.result_json, i.incident_date, i.sector, i.name AS incident_name
+           FROM reconstruction_results rr
+           JOIN incidents i ON i.id = rr.incident_id
+           WHERE rr.id = $1`,
           [input.id],
         );
-        return res.rows[0]?.result_json ?? null;
+        if (!res.rows[0]) return null;
+        const row = res.rows[0];
+        return {
+          result: row.result_json,
+          incident_date: row.incident_date,
+          sector: row.sector,
+          incident_name: row.incident_name,
+        };
       }),
   }),
   sector: router({

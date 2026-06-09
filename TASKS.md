@@ -44,7 +44,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
 
 ## P2 — Important
 
-- [ ] **PDF report export** — "Export Report" button on DetailPage. Use 
+- [x] **PDF report export** — "Export Report" button on DetailPage. Use 
   `@react-pdf/renderer`. Contains: incident title, date, actor, verdict, attack 
   chain in plain English, breaking controls, self-assessment questions with blank 
   answer boxes, caveats. No T-codes. AC: PDF downloads with all five sections.
