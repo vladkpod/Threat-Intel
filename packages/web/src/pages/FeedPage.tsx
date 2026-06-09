@@ -15,9 +15,21 @@ export function FeedPage({ onSelectIncident }: Props) {
   const [raw, setRaw] = useState("");
   const [parseError, setParseError] = useState<string | null>(null);
 
-  const query = trpc.reconstruction.list.useQuery();
+  const [cursor, setCursor] = useState<number | undefined>(undefined);
+  const [allItems, setAllItems] = useState<NonNullable<ReturnType<typeof trpc.reconstruction.list.useQuery>["data"]>["items"]>([]);
+
+  const query = trpc.reconstruction.list.useQuery({ cursor }, {
+    onSuccess: (data) => {
+      if (cursor === undefined) {
+        setAllItems(data.items);
+      } else {
+        setAllItems((prev) => [...prev, ...data.items]);
+      }
+    },
+  });
   const mutation = trpc.reconstruction.run.useMutation({
     onSuccess: () => {
+      setCursor(undefined);
       void query.refetch();
       setShowForm(false);
       setRaw("");
@@ -36,7 +48,7 @@ export function FeedPage({ onSelectIncident }: Props) {
     mutation.mutate(parsed as Parameters<typeof mutation.mutate>[0]);
   }
 
-  const mostRecent = query.data?.[0];
+  const mostRecent = allItems[0];
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,9 +56,9 @@ export function FeedPage({ onSelectIncident }: Props) {
         <div className="max-w-3xl mx-auto flex items-start justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold tracking-tight">Incident Feed</h1>
-            {query.data && query.data.length > 0 && mostRecent && (
+            {allItems.length > 0 && mostRecent && (
               <p className="text-sm text-muted-foreground mt-0.5">
-                {query.data.length} incident{query.data.length !== 1 ? "s" : ""} tracked
+                {allItems.length} incident{allItems.length !== 1 ? "s" : ""} tracked
                 {" · "}Latest:{" "}
                 {new Date(mostRecent.created_at).toLocaleDateString("en-GB", {
                   day: "numeric",
@@ -92,7 +104,7 @@ export function FeedPage({ onSelectIncident }: Props) {
           <p className="text-sm text-muted-foreground">Loading incidents…</p>
         )}
 
-        {query.data && query.data.length === 0 && !showForm && (
+        {allItems.length === 0 && !query.isLoading && !showForm && (
           <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
               <p className="text-sm">No incidents reconstructed yet.</p>
@@ -101,9 +113,9 @@ export function FeedPage({ onSelectIncident }: Props) {
           </Card>
         )}
 
-        {query.data && query.data.length > 0 && (
+        {allItems.length > 0 && (
           <div className="space-y-4">
-            {query.data.map((item) => (
+            {allItems.map((item) => (
               <IncidentFeedCard
                 key={item.id}
                 id={item.id}
@@ -114,6 +126,18 @@ export function FeedPage({ onSelectIncident }: Props) {
                 onClick={onSelectIncident}
               />
             ))}
+            {query.data?.nextCursor != null && (
+              <div className="flex justify-center pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={query.isFetching}
+                  onClick={() => setCursor(query.data.nextCursor ?? undefined)}
+                >
+                  {query.isFetching ? "Loading…" : "Load more"}
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </main>

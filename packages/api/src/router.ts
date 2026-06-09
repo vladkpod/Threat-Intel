@@ -10,23 +10,40 @@ export const appRouter = router({
     run: publicProcedure
       .input(ReconstructionInput)
       .mutation(({ input }) => reconstruct(input)),
-    list: publicProcedure.query(async ({ ctx }) => {
-      const res = await ctx.db.query<{
-        id: number;
-        created_at: string;
-        result_json: ReconstructionOutput;
-        incident_name: string;
-        incident_date: string | null;
-        sector: string | null;
-      }>(
-        `SELECT rr.id, rr.created_at, rr.result_json, i.name AS incident_name,
-                i.incident_date, i.sector
-         FROM reconstruction_results rr
-         JOIN incidents i ON i.id = rr.incident_id
-         ORDER BY rr.created_at DESC`,
-      );
-      return res.rows;
-    }),
+    list: publicProcedure
+      .input(z.object({ cursor: z.number().optional() }).optional())
+      .query(async ({ ctx, input }) => {
+        const PAGE_SIZE = 20;
+        const cursor = input?.cursor;
+        const res = await ctx.db.query<{
+          id: number;
+          created_at: string;
+          result_json: ReconstructionOutput;
+          incident_name: string;
+          incident_date: string | null;
+          sector: string | null;
+        }>(
+          cursor !== undefined
+            ? `SELECT rr.id, rr.created_at, rr.result_json, i.name AS incident_name,
+                      i.incident_date, i.sector
+               FROM reconstruction_results rr
+               JOIN incidents i ON i.id = rr.incident_id
+               WHERE rr.id < $1
+               ORDER BY rr.id DESC
+               LIMIT ${PAGE_SIZE + 1}`
+            : `SELECT rr.id, rr.created_at, rr.result_json, i.name AS incident_name,
+                      i.incident_date, i.sector
+               FROM reconstruction_results rr
+               JOIN incidents i ON i.id = rr.incident_id
+               ORDER BY rr.id DESC
+               LIMIT ${PAGE_SIZE + 1}`,
+          cursor !== undefined ? [cursor] : [],
+        );
+        const hasMore = res.rows.length > PAGE_SIZE;
+        const items = hasMore ? res.rows.slice(0, PAGE_SIZE) : res.rows;
+        const nextCursor = hasMore ? items[items.length - 1]?.id ?? null : null;
+        return { items, nextCursor };
+      }),
     get: publicProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ ctx, input }) => {

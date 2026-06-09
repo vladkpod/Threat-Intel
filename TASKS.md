@@ -76,11 +76,11 @@ The loop only terminates when a review pass finds zero new gaps to add.
 
 - [?] **Add Incident form fix** — the form calls `reconstruction.run` which doesn't persist results; after "success" no incident appears in the feed. Options: route through review queue, or remove the form. See DECISIONS.md. Blocked on product owner decision.
 
-- [ ] **Admin auth test** — add integration test: unauthenticated request to any `/admin` route returns 401; request with correct `x-admin-api-key` returns 200. AC: two tests pass covering both cases.
+- [x] **Admin auth test** — add integration test: unauthenticated request to any `/admin` route returns 401; request with correct `x-admin-api-key` returns 200. AC: two tests pass covering both cases.
 
-- [ ] **`reconstruction.list` pagination** — add `cursor`-based pagination to `reconstruction.list` (default page size 20). AC: query with no cursor returns first 20; `nextCursor` in response allows fetching the next page.
+- [x] **`reconstruction.list` pagination** — add `cursor`-based pagination to `reconstruction.list` (default page size 20). AC: query with no cursor returns first 20; `nextCursor` in response allows fetching the next page.
 
-- [ ] **Startup secret validation** — validate `ADMIN_API_KEY` at server start; if absent, log a clear error and exit with code 1. AC: starting the server without `ADMIN_API_KEY` set prints a descriptive error and exits.
+- [x] **Startup secret validation** — validate `ADMIN_API_KEY` at server start; if absent, log a clear error and exit with code 1. AC: starting the server without `ADMIN_API_KEY` set prints a descriptive error and exits.
 
 ## P3 — Polish
 
