@@ -18,7 +18,9 @@ import { fileURLToPath } from "node:url";
 import { createMigratedDb, createIncident, storeReconstructionResult } from "@store";
 import { reconstruct } from "@engine";
 
-const DATA_DIR = ".pglite/data";
+// Anchored to repo root via import.meta.url so the path is correct regardless
+// of which directory the script is invoked from.
+const DATA_DIR = fileURLToPath(new URL("../.pglite/data", import.meta.url));
 
 const FIXTURES = [
   fileURLToPath(
