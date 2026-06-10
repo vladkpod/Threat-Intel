@@ -16,13 +16,24 @@ export function AdminPage() {
   async function handleAction(id: number, action: "approve" | "reject") {
     setActioning(id);
     try {
+      const item = items.find((i) => i.id === id);
+      let body: Record<string, unknown> = { reviewer: "admin" };
+      if (action === "approve" && item?.candidate_text) {
+        try {
+          body = { ...body, reconstruction_input: JSON.parse(item.candidate_text) as unknown };
+        } catch {
+          toast.error("Cannot parse reconstruction input for this item.");
+          setActioning(null);
+          return;
+        }
+      }
       const res = await fetch(`${API_BASE}/admin/review/${id}/${action}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-admin-api-key": ADMIN_KEY ?? "",
         },
-        body: JSON.stringify({ reviewer: "admin" }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) {
         const data = (await res.json()) as { error?: string };
