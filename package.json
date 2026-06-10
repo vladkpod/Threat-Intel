@@ -28,6 +28,7 @@
     "@electric-sql/pglite": "^0.2.17",
     "@radix-ui/react-dialog": "^1.1.16",
     "@radix-ui/react-label": "^2.1.9",
-    "@radix-ui/react-select": "^2.3.0"
+    "@radix-ui/react-select": "^2.3.0",
+    "sonner": "^2.0.7"
   }
 }

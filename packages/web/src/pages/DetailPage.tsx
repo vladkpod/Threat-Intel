@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { trpc } from "@/lib/trpc.js";
 import { AttackChainView } from "@/components/AttackChainView.js";
 import { SelfAssessmentPanel } from "@/components/SelfAssessmentPanel.js";
@@ -9,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card.js";
 import { Button } from "@/components/ui/button.js";
 import { Input } from "@/components/ui/input.js";
 import { Label } from "@/components/ui/label.js";
+import { Users } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -44,12 +46,18 @@ export function DetailPage({ incidentId, onBack, onOpenAssessment }: Props) {
   const [techNotes, setTechNotes] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
+  const existingAssessments = trpc.assessment.listForReconstruction.useQuery(
+    { reconstruction_id: incidentId },
+    { enabled: !query.isLoading && !query.error },
+  );
+
   const createAssessment = trpc.assessment.create.useMutation({
     onSuccess: (data) => {
       setModalOpen(false);
       setClientName("");
       setClientSector("");
       setTechNotes("");
+      void existingAssessments.refetch();
       onOpenAssessment(data.assessment_id);
     },
     onError: (err) => {
@@ -106,6 +114,9 @@ export function DetailPage({ incidentId, onBack, onOpenAssessment }: Props) {
       a.download = `${out.incident.name.replace(/\s+/g, "_")}_report.pdf`;
       a.click();
       URL.revokeObjectURL(url);
+      toast.success("Report exported");
+    } catch (err) {
+      toast.error(`Export failed: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setExporting(false);
     }
@@ -217,39 +228,76 @@ export function DetailPage({ incidentId, onBack, onOpenAssessment }: Props) {
           <SelfAssessmentPanel entries={out.self_assessment} reconstructionId={incidentId} />
         </section>
 
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold">Client Assessments</h2>
+            <Button variant="outline" size="sm" onClick={() => setModalOpen(true)}>
+              + New Assessment
+            </Button>
+          </div>
+          {existingAssessments.isLoading && (
+            <p className="text-sm text-muted-foreground">Loading assessments…</p>
+          )}
+          {!existingAssessments.isLoading && (existingAssessments.data?.length ?? 0) === 0 && (
+            <div className="flex flex-col items-center justify-center py-12 text-center gap-3 border rounded-lg border-dashed">
+              <Users className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
+              <p className="text-sm font-medium">No client assessments yet</p>
+              <p className="text-xs text-muted-foreground">
+                Create a new assessment to assess a client against this attack chain.
+              </p>
+              <Button size="sm" onClick={() => setModalOpen(true)}>
+                New Assessment
+              </Button>
+            </div>
+          )}
+          {(existingAssessments.data?.length ?? 0) > 0 && (
+            <div className="space-y-2">
+              {existingAssessments.data?.map((a) => (
+                <Card key={a.id} className="cursor-pointer hover:bg-muted/40 transition-colors">
+                  <CardContent className="pt-3 pb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-medium">{a.client_name}</p>
+                      {a.client_sector && (
+                        <p className="text-xs text-muted-foreground">{a.client_sector}</p>
+                      )}
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => onOpenAssessment(a.id)}>
+                      Open
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
+
         {out.version_log.length > 0 && (
           <section>
-            <h2 className="text-lg font-semibold mb-3">Version Log</h2>
-            <Card>
-              <CardContent className="pt-4 overflow-x-auto">
-                <table className="w-full text-xs min-w-[500px]">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left pb-2 font-medium">Claim</th>
-                      <th className="text-left pb-2 font-medium">Old tier</th>
-                      <th className="text-left pb-2 font-medium">New tier</th>
-                      <th className="text-left pb-2 font-medium">Superseding source</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {out.version_log.map((entry, i) => (
-                      <tr key={i} className="border-b last:border-0">
-                        <td className="py-1.5 pr-3">{entry.claim}</td>
-                        <td className="py-1.5 pr-3">
-                          <EvidenceBadge tier={entry.old_tier} />
-                        </td>
-                        <td className="py-1.5 pr-3">
-                          <EvidenceBadge tier={entry.new_tier} />
-                        </td>
-                        <td className="py-1.5 text-muted-foreground">
-                          {entry.superseding_source}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </CardContent>
-            </Card>
+            <h2 className="text-lg font-semibold mb-3">Incident Timeline</h2>
+            <div className="relative pl-6">
+              {/* Vertical line */}
+              <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-border" aria-hidden="true" />
+              {[...out.version_log].reverse().map((entry, i) => (
+                <div key={i} className="relative flex gap-4 mb-5 last:mb-0">
+                  {/* Dot */}
+                  <div
+                    className="absolute -left-[3px] top-1.5 w-3 h-3 rounded-full bg-foreground border-2 border-background shrink-0"
+                    aria-hidden="true"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-muted-foreground">
+                      {entry.claim} — upgraded{" "}
+                      <span className="font-medium text-foreground">{entry.old_tier}</span>
+                      {" → "}
+                      <span className="font-medium text-foreground">{entry.new_tier}</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Source: {entry.superseding_source}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </section>
         )}
       </main>

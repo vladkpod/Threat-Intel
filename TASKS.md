@@ -253,25 +253,25 @@ The loop only terminates when a review pass finds zero new gaps to add.
 
 ### P3 — Polish and completeness
 
-- [ ] **Incident timeline** — replace the Version Log table in the detail view
+- [x] **Incident timeline** — replace the Version Log table in the detail view
   with a visual timeline component. Each entry is a dot on a vertical line
   with the date on the left and the event description on the right
   (e.g. "T1133 upgraded REPORTED → CONFIRMED — British Library Cyber
   Incident Review"). Most recent at top. AC: timeline renders all version
   log entries; dates formatted consistently; visual dots visible.
 
-- [ ] **Toast notifications** — add `sonner` (already in shadcn/ui ecosystem)
+- [x] **Toast notifications** — add `sonner` (already in shadcn/ui ecosystem)
   for success/error toasts: assessment saved, PDF exported, incident submitted
   for review, admin approve/reject. AC: each action shows a toast that
   auto-dismisses after 3 seconds.
 
-- [ ] **Empty states** — every page and section that can be empty has a
+- [x] **Empty states** — every page and section that can be empty has a
   meaningful empty state: no clients yet, no pending admin items, no
   assessments for this incident, no sector data for this sector.
   Empty states include an icon, a one-line explanation, and a primary action.
   AC: all four empty states render with icon + text + action button.
 
-- [ ] **Keyboard navigation audit** — use keyboard only to complete the
+- [x] **Keyboard navigation audit** — use keyboard only to complete the
   full journey: feed → detail → new assessment → answer questions → export PDF.
   Fix any step where focus is lost or a control is unreachable.
   AC: full journey completable by keyboard without mouse.

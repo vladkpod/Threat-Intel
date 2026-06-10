@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { trpc } from "@/lib/trpc.js";
 import { IncidentFeedCard } from "@/components/IncidentFeedCard.js";
 import { Button } from "@/components/ui/button.js";
@@ -70,6 +71,10 @@ export function FeedPage({ onSelectIncident }: Props) {
     onSuccess: () => {
       setSubmitted(true);
       setRaw("");
+      toast.success("Incident submitted for review");
+    },
+    onError: (err) => {
+      toast.error(`Submission failed: ${err.message}`);
     },
   });
 

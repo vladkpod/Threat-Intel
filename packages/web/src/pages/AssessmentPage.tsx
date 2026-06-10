@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { trpc } from "@/lib/trpc.js";
 import { Button } from "@/components/ui/button.js";
 import { Card, CardContent } from "@/components/ui/card.js";
@@ -74,7 +75,15 @@ export function AssessmentPage({ assessmentId, onBack }: Props) {
     (answers: AnswerMap) => {
       saveAnswers.mutate(
         { id: assessmentId, answers },
-        { onSuccess: () => setSavedAt(new Date()) },
+        {
+          onSuccess: () => {
+            setSavedAt(new Date());
+            toast.success("Assessment saved");
+          },
+          onError: () => {
+            toast.error("Failed to save answers");
+          },
+        },
       );
     },
     [assessmentId, saveAnswers],
@@ -105,6 +114,9 @@ export function AssessmentPage({ assessmentId, onBack }: Props) {
       a.download = `${(client?.name ?? "client").replace(/\s+/g, "_")}_${incidentName.replace(/\s+/g, "_")}_assessment.pdf`;
       a.click();
       URL.revokeObjectURL(url);
+      toast.success("Assessment PDF exported");
+    } catch (err) {
+      toast.error(`Export failed: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setExporting(false);
     }

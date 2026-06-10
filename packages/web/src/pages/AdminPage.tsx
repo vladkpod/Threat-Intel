@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { trpc } from "@/lib/trpc.js";
 import { Button } from "@/components/ui/button.js";
 import { Card, CardContent } from "@/components/ui/card.js";
@@ -11,12 +12,6 @@ const API_BASE = import.meta.env["VITE_API_URL"] as string | undefined ?? "http:
 export function AdminPage() {
   const query = trpc.review.list.useQuery();
   const [actioning, setActioning] = useState<number | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
-
-  function showToast(msg: string) {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3000);
-  }
 
   async function handleAction(id: number, action: "approve" | "reject") {
     setActioning(id);
@@ -31,13 +26,13 @@ export function AdminPage() {
       });
       if (!res.ok) {
         const data = (await res.json()) as { error?: string };
-        showToast(`Error: ${data.error ?? res.statusText}`);
+        toast.error(`Error: ${data.error ?? res.statusText}`);
       } else {
-        showToast(`Item ${id} ${action === "approve" ? "approved" : "rejected"} successfully.`);
+        toast.success(`Item ${action === "approve" ? "approved" : "rejected"} successfully.`);
         void query.refetch();
       }
     } catch (err) {
-      showToast(`Network error: ${String(err)}`);
+      toast.error(`Network error: ${String(err)}`);
     } finally {
       setActioning(null);
     }
@@ -47,11 +42,6 @@ export function AdminPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {toast && (
-        <div className="fixed top-4 right-4 z-50 bg-foreground text-background px-4 py-2 rounded-md shadow-lg text-sm">
-          {toast}
-        </div>
-      )}
 
       <main className="max-w-5xl mx-auto px-6 py-8">
         <h1 className="text-2xl font-bold mb-6">Admin — Review Queue</h1>
