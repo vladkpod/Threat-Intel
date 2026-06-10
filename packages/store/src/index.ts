@@ -23,5 +23,13 @@ export {
   getClaimStaleness,
   getStalenessForClaim,
   getStalenessCaveatsForIncident,
+  upsertClient,
+  getClient,
+  createClientAssessment,
+  getClientAssessment,
+  getClientAssessmentForReconstruction,
+  updateClientAssessmentAnswers,
+  listClientAssessmentsForReconstruction,
   type CreateReviewItemInput,
+  type UpsertClientInput,
 } from "./repositories.js";

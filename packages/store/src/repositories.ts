@@ -8,11 +8,14 @@
  */
 import type { Db } from "./db.js";
 import type {
+  AnswerMap,
   ClaimInput,
   ClaimRow,
   ClaimStalenessRow,
   ClaimVersionInput,
   ClaimVersionRow,
+  ClientAssessmentRow,
+  ClientRow,
   EvidenceTier,
   IncidentRow,
   JobRow,
@@ -456,4 +459,114 @@ export async function getStalenessCaveatsForIncident(
     [incidentId],
   );
   return res.rows.map((r) => r.caveat);
+}
+
+// --- Client assessments ---
+
+export interface UpsertClientInput {
+  name: string;
+  sector?: string | null;
+  tech_stack_notes?: string | null;
+}
+
+export async function upsertClient(
+  db: Db,
+  input: UpsertClientInput,
+): Promise<ClientRow> {
+  const res = await db.query<ClientRow>(
+    `INSERT INTO clients (name, sector, tech_stack_notes)
+     VALUES ($1, $2, $3)
+     ON CONFLICT (lower(name)) DO UPDATE SET
+       sector = COALESCE(EXCLUDED.sector, clients.sector),
+       tech_stack_notes = COALESCE(EXCLUDED.tech_stack_notes, clients.tech_stack_notes)
+     RETURNING id, name, sector, tech_stack_notes, created_at`,
+    [input.name, input.sector ?? null, input.tech_stack_notes ?? null],
+  );
+  return res.rows[0]!;
+}
+
+export async function getClient(
+  db: Db,
+  id: number,
+): Promise<ClientRow | null> {
+  const res = await db.query<ClientRow>(
+    `SELECT id, name, sector, tech_stack_notes, created_at
+     FROM clients WHERE id = $1`,
+    [id],
+  );
+  return res.rows[0] ?? null;
+}
+
+export async function createClientAssessment(
+  db: Db,
+  clientId: number,
+  reconstructionId: number,
+): Promise<ClientAssessmentRow> {
+  const res = await db.query<ClientAssessmentRow>(
+    `INSERT INTO client_assessments (client_id, reconstruction_id, answers)
+     VALUES ($1, $2, '{}')
+     ON CONFLICT (client_id, reconstruction_id) DO UPDATE SET updated_at = now()
+     RETURNING id, client_id, reconstruction_id, answers, created_at, updated_at`,
+    [clientId, reconstructionId],
+  );
+  return res.rows[0]!;
+}
+
+export async function getClientAssessment(
+  db: Db,
+  id: number,
+): Promise<ClientAssessmentRow | null> {
+  const res = await db.query<ClientAssessmentRow>(
+    `SELECT id, client_id, reconstruction_id, answers, created_at, updated_at
+     FROM client_assessments WHERE id = $1`,
+    [id],
+  );
+  return res.rows[0] ?? null;
+}
+
+export async function getClientAssessmentForReconstruction(
+  db: Db,
+  clientId: number,
+  reconstructionId: number,
+): Promise<ClientAssessmentRow | null> {
+  const res = await db.query<ClientAssessmentRow>(
+    `SELECT id, client_id, reconstruction_id, answers, created_at, updated_at
+     FROM client_assessments WHERE client_id = $1 AND reconstruction_id = $2`,
+    [clientId, reconstructionId],
+  );
+  return res.rows[0] ?? null;
+}
+
+export async function updateClientAssessmentAnswers(
+  db: Db,
+  id: number,
+  answers: AnswerMap,
+): Promise<ClientAssessmentRow> {
+  const res = await db.query<ClientAssessmentRow>(
+    `UPDATE client_assessments
+     SET answers = $2::jsonb, updated_at = now()
+     WHERE id = $1
+     RETURNING id, client_id, reconstruction_id, answers, created_at, updated_at`,
+    [id, JSON.stringify(answers)],
+  );
+  if (!res.rows[0]) {
+    throw new Error(`Client assessment ${id} not found`);
+  }
+  return res.rows[0];
+}
+
+export async function listClientAssessmentsForReconstruction(
+  db: Db,
+  reconstructionId: number,
+): Promise<(ClientAssessmentRow & { client_name: string; client_sector: string | null })[]> {
+  const res = await db.query<ClientAssessmentRow & { client_name: string; client_sector: string | null }>(
+    `SELECT ca.id, ca.client_id, ca.reconstruction_id, ca.answers, ca.created_at, ca.updated_at,
+            c.name AS client_name, c.sector AS client_sector
+     FROM client_assessments ca
+     JOIN clients c ON c.id = ca.client_id
+     WHERE ca.reconstruction_id = $1
+     ORDER BY ca.created_at DESC`,
+    [reconstructionId],
+  );
+  return res.rows;
 }

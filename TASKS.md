@@ -133,3 +133,145 @@ The loop only terminates when a review pass finds zero new gaps to add.
 - [x] **`selfAssess()` unit tests** — self-assessment generation has no isolated tests; testability assignment and fallback paths uncovered. AC: tests cover (a) known technique produces analyst-asserted entries with correct testability; (b) unknown technique produces fallback entry; (c) entries carry correct `evidence_tier_of_underlying_step`.
 
 - [x] **Migration idempotency** — `0001_init.sql` and `0002_m6.sql` use bare `CREATE TYPE`/`CREATE TABLE` without `IF NOT EXISTS`; re-running after a partial failure errors. AC: all DDL statements in both files use `IF NOT EXISTS`; `createMigratedDb()` succeeds when called twice against the same DB.
+
+---
+
+## Final Product Sprint
+
+### P1 — The client concept (the missing core)
+
+- [x] **Client model** — add a `clients` table (migration):
+  `id`, `name`, `sector`, `tech_stack_notes` (text), `created_at`.
+  Add a `client_assessments` table:
+  `id`, `client_id` (FK), `reconstruction_id` (FK to reconstruction_results),
+  `answers` (jsonb — map of step index → yes/partial/no),
+  `created_at`, `updated_at`.
+  AC: migration runs cleanly; tables exist with correct constraints.
+
+- [ ] **New Assessment flow** — add a "New Assessment" button to the
+  reconstruction DetailPage (alongside "Export Report"). Clicking opens a
+  modal (shadcn Dialog) with three fields: Client name (text input),
+  Client sector (select, seeded from the same sector map used for inference),
+  Technology stack notes (textarea, optional, 500 char max).
+  On submit: creates a `clients` row (or reuses existing client by name),
+  creates a `client_assessments` row linked to the current reconstruction,
+  navigates to the new AssessmentPage. No page reload.
+  AC: modal opens, form submits, assessment row created, navigates to assessment.
+
+- [ ] **AssessmentPage** — new page (`pages/AssessmentPage.tsx`), reached from
+  the detail view. Renders: client name and sector as the headline;
+  the incident name as subtitle; the self-assessment questionnaire with
+  yes/partial/no toggle buttons (not dropdowns — three visible buttons per
+  question, one active state); answers persisted to `client_assessments.answers`
+  via a tRPC mutation on every toggle change (debounced 500ms, not on submit).
+  Displays a live verdict panel that recomputes on every answer change:
+  "Based on your answers, this attack would be stopped at Step X (PREVENT —
+  [control name])" or "Based on your answers, this attack would likely succeed —
+  no controls address the critical path." The verdict updates without a page
+  reload. Back link returns to the reconstruction detail.
+  AC: toggling an answer updates the verdict within 500ms; answers survive
+  page reload (loaded from DB); verdict correctly identifies earliest answered
+  step with a 'yes' PREVENT control as the break point.
+
+- [ ] **Gap analysis panel** — below the live verdict on AssessmentPage,
+  render a gap analysis: one row per attack chain step, showing:
+  step plain-English description, the breaking control for that step,
+  and a status derived from the client's answer (green tick if yes,
+  amber warning if partial, red cross if no, grey dash if unanswered).
+  Steps where the answer is 'no' or unanswered are highlighted as gaps.
+  AC: gap analysis renders all steps; status icons match toggle answers;
+  unanswered steps show as gaps.
+
+### P1 — Admin review UI (makes the queue flow usable)
+
+- [ ] **Admin page** — add a third nav item "Admin" visible only when
+  `VITE_ADMIN_API_KEY` env var is set (dev/internal only — not shown to
+  clients). The AdminPage (`pages/AdminPage.tsx`) shows a table of pending
+  `review_queue` items: incident name (from `candidate_title`), submitted date,
+  type (new-incident / verdict-change), tier ceiling, and Approve / Reject
+  buttons. Approve calls `POST /admin/review/:id/approve` with the API key
+  header. Reject calls `POST /admin/review/:id/reject`. After approve/reject
+  the row is removed from the table and a success toast is shown.
+  AC: pending items appear in the table; approve/reject call the correct
+  endpoints with the API key header; row disappears after action.
+
+- [ ] **tRPC `review.list` procedure** — add `review.list` to the router,
+  returning all `review_queue` rows with `status=pending`, joined to
+  `incidents` for the name. Used by AdminPage.
+  AC: procedure returns correct rows; empty array if no pending items.
+
+### P2 — Client-personalised PDF report
+
+- [ ] **Assessment PDF** — extend the existing PDF export to accept an optional
+  `clientAssessment` prop. When a client assessment is loaded (from AssessmentPage),
+  the PDF becomes client-personalised: replace the generic header with
+  "[Client Name] — Threat Assessment Report", add a cover section showing
+  client name, sector, tech stack notes, assessment date, and the preparer
+  ("Prepared by Waterstons"). Add a Gap Analysis section showing the step-by-step
+  breakdown with client answers and gap status. Add a Priority Actions section
+  listing the top 3 unaddressed steps by chain order.
+  The generic (non-client) PDF remains unchanged for use from the detail page.
+  AC: assessment PDF contains client name in header; gap analysis section
+  present with correct step statuses; generic PDF unchanged.
+
+### P2 — Sector brief export
+
+- [ ] **Sector brief PDF** — add an "Export Brief" button to SectorPage,
+  visible per sector card. Generates a 1-2 page PDF titled
+  "Threat Intelligence Brief — [Sector] — [date]". Content:
+  paragraph 1 — sector threat summary (top actor, top technique, KEV count,
+  plain English — generated deterministically from the sector card data,
+  no LLM call); paragraph 2 — recent advisories (list of KEV entries with
+  dates); paragraph 3 — recommended priority controls (the breaking controls
+  for the top 2 techniques, from the static analyst-asserted library or CTID).
+  AC: PDF downloads with three sections; no T-codes visible; sector name
+  and date correct.
+
+### P2 — Visual attack chain
+
+- [ ] **Visual chain flow** — replace the stacked step cards in the
+  reconstruction detail with a visual vertical flow: each step is a node
+  connected to the next by a solid vertical line with an arrow. Left side
+  of each node shows the MITRE tactic phase label (plain English, e.g.
+  "Initial Access") in a small muted pill. The node body is the existing
+  step card content. The connector line is coloured by the evidence tier
+  of the step it connects to (CONFIRMED = green, REPORTED = amber,
+  INFERRED = grey). This makes the kill-chain narrative visual and
+  immediately communicates where the evidence is strong vs inferred.
+  AC: steps are visually connected; connector colour matches step tier;
+  existing step content unchanged; all tests pass.
+
+### P2 — Feed search and filter
+
+- [ ] **Feed filter bar** — add a filter bar below the "Incident Feed" header.
+  Three filters: Sector (select, options derived from distinct sectors in the
+  feed data), Severity (select: ALL / HIGH / MEDIUM / LOW), Actor (text input,
+  fuzzy match on actor name). Filters apply client-side against the loaded
+  feed data (no new API call needed at this scale). Clear filters button.
+  AC: filtering by severity hides non-matching cards; filtering by actor
+  shows only matching cards; clear resets to full feed.
+
+### P3 — Polish and completeness
+
+- [ ] **Incident timeline** — replace the Version Log table in the detail view
+  with a visual timeline component. Each entry is a dot on a vertical line
+  with the date on the left and the event description on the right
+  (e.g. "T1133 upgraded REPORTED → CONFIRMED — British Library Cyber
+  Incident Review"). Most recent at top. AC: timeline renders all version
+  log entries; dates formatted consistently; visual dots visible.
+
+- [ ] **Toast notifications** — add `sonner` (already in shadcn/ui ecosystem)
+  for success/error toasts: assessment saved, PDF exported, incident submitted
+  for review, admin approve/reject. AC: each action shows a toast that
+  auto-dismisses after 3 seconds.
+
+- [ ] **Empty states** — every page and section that can be empty has a
+  meaningful empty state: no clients yet, no pending admin items, no
+  assessments for this incident, no sector data for this sector.
+  Empty states include an icon, a one-line explanation, and a primary action.
+  AC: all four empty states render with icon + text + action button.
+
+- [ ] **Keyboard navigation audit** — use keyboard only to complete the
+  full journey: feed → detail → new assessment → answer questions → export PDF.
+  Fix any step where focus is lost or a control is unreachable.
+  AC: full journey completable by keyboard without mouse.

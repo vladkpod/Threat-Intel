@@ -125,3 +125,25 @@ export interface ClaimStalenessRow {
   caveat: string;
   flagged_at: string;
 }
+
+// Client assessment types
+
+export type AssessmentAnswer = "yes" | "partial" | "no";
+export type AnswerMap = Record<string, AssessmentAnswer>;
+
+export interface ClientRow {
+  id: number;
+  name: string;
+  sector: string | null;
+  tech_stack_notes: string | null;
+  created_at: string;
+}
+
+export interface ClientAssessmentRow {
+  id: number;
+  client_id: number;
+  reconstruction_id: number;
+  answers: AnswerMap;
+  created_at: string;
+  updated_at: string;
+}
