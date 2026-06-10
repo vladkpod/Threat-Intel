@@ -74,7 +74,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
 - [x] **Rate limiting** — `express-rate-limit` on reconstruction endpoint (10/hour/IP) 
   and admin router (20/hour/IP). AC: 11th reconstruction request returns 429.
 
-- [?] **Add Incident form fix** — the form calls `reconstruction.run` which doesn't persist results; after "success" no incident appears in the feed. Options: route through review queue, or remove the form. See DECISIONS.md. Blocked on product owner decision.
+- [x] **Add Incident form fix** — route through review queue (Option A). Form calls `reconstruction.submit` which creates a `review_queue` row; shows "Submitted for review" confirmation; incident appears in feed only after admin approval. Invariant 11 satisfied.
 
 - [x] **Admin auth test** — add integration test: unauthenticated request to any `/admin` route returns 401; request with correct `x-admin-api-key` returns 200. AC: two tests pass covering both cases.
 

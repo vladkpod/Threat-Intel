@@ -13,6 +13,7 @@ export function FeedPage({ onSelectIncident }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [raw, setRaw] = useState("");
   const [parseError, setParseError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   const [cursor, setCursor] = useState<number | undefined>(undefined);
   const [allItems, setAllItems] = useState<NonNullable<ReturnType<typeof trpc.reconstruction.list.useQuery>["data"]>["items"]>([]);
@@ -26,17 +27,17 @@ export function FeedPage({ onSelectIncident }: Props) {
       }
     },
   });
-  const mutation = trpc.reconstruction.run.useMutation({
+
+  const mutation = trpc.reconstruction.submit.useMutation({
     onSuccess: () => {
-      setCursor(undefined);
-      void query.refetch();
-      setShowForm(false);
+      setSubmitted(true);
       setRaw("");
     },
   });
 
   function handleSubmit() {
     setParseError(null);
+    setSubmitted(false);
     let parsed: unknown;
     try {
       parsed = JSON.parse(raw);
@@ -45,6 +46,13 @@ export function FeedPage({ onSelectIncident }: Props) {
       return;
     }
     mutation.mutate(parsed as Parameters<typeof mutation.mutate>[0]);
+  }
+
+  function handleToggleForm() {
+    setShowForm((v) => !v);
+    setSubmitted(false);
+    setRaw("");
+    setParseError(null);
   }
 
   const mostRecent = allItems[0];
@@ -67,7 +75,7 @@ export function FeedPage({ onSelectIncident }: Props) {
               </p>
             )}
           </div>
-          <Button variant="outline" size="sm" onClick={() => setShowForm((v) => !v)}>
+          <Button variant="outline" size="sm" onClick={handleToggleForm}>
             {showForm ? "Cancel" : "Add Incident"}
           </Button>
         </div>
@@ -77,20 +85,28 @@ export function FeedPage({ onSelectIncident }: Props) {
         {showForm && (
           <Card>
             <CardContent className="pt-6 space-y-3">
-              <Textarea
-                value={raw}
-                onChange={(e) => setRaw(e.target.value)}
-                rows={12}
-                className="font-mono text-xs"
-                placeholder="Paste ReconstructionInput JSON..."
-              />
-              {parseError && <p className="text-sm text-destructive">{parseError}</p>}
-              {mutation.error && (
-                <p className="text-sm text-destructive">{mutation.error.message}</p>
+              {submitted ? (
+                <p className="text-sm text-muted-foreground">
+                  Submitted for review — approve via the admin flow to publish to feed.
+                </p>
+              ) : (
+                <>
+                  <Textarea
+                    value={raw}
+                    onChange={(e) => setRaw(e.target.value)}
+                    rows={12}
+                    className="font-mono text-xs"
+                    placeholder="Paste ReconstructionInput JSON..."
+                  />
+                  {parseError && <p className="text-sm text-destructive">{parseError}</p>}
+                  {mutation.error && (
+                    <p className="text-sm text-destructive">{mutation.error.message}</p>
+                  )}
+                  <Button onClick={handleSubmit} disabled={mutation.isPending}>
+                    {mutation.isPending ? "Submitting…" : "Submit for Review"}
+                  </Button>
+                </>
               )}
-              <Button onClick={handleSubmit} disabled={mutation.isPending}>
-                {mutation.isPending ? "Reconstructing…" : "Reconstruct Incident"}
-              </Button>
             </CardContent>
           </Card>
         )}

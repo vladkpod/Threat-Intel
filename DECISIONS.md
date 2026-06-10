@@ -4,7 +4,7 @@ Items marked [?] in TASKS.md require an owner decision before implementation.
 
 ---
 
-## [?] Add Incident form — route through review queue or remove?
+## [x] Add Incident form — route through review queue or remove?
 
 **Date raised:** 2026-06-09
 
@@ -32,4 +32,4 @@ C. **Mark as admin-only dev feature** — Keep the form but make it clear it's a
 **Recommendation:** Option B (remove) if the primary use case is client demos seeded with real
 incidents; Option A if the product needs self-service incident submission from analysts.
 
-**Blocked on:** product owner decision.
+**Decision (2026-06-10):** Option A — route through the review queue. The form now calls `reconstruction.submit` which creates a `review_queue` row (`type: "new-incident"`, `tier_ceiling: "REPORTED"`). On success the form shows "Submitted for review — approve via the admin flow to publish to feed." Admins approve via `POST /admin/review/:id/approve` with `reconstruction_input`. Invariant 11 satisfied; the incident appears in the feed only after human approval.

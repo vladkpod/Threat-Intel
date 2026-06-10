@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { reconstruct, ReconstructionInput, ReconstructionOutput } from "@engine";
 import { fetchSectorView } from "@sector";
-import { getStalenessCaveatsForIncident } from "@store";
+import { createReviewItem, getStalenessCaveatsForIncident } from "@store";
 import { router, publicProcedure } from "./trpc.js";
 
 export const appRouter = router({
@@ -9,6 +9,18 @@ export const appRouter = router({
     run: publicProcedure
       .input(ReconstructionInput)
       .mutation(({ input }) => reconstruct(input)),
+    submit: publicProcedure
+      .input(ReconstructionInput)
+      .mutation(async ({ ctx, input }) => {
+        const item = await createReviewItem(ctx.db, {
+          feed_job_id: null,
+          type: "new-incident",
+          candidate_title: input.incident_name,
+          candidate_text: JSON.stringify(input),
+          tier_ceiling: "REPORTED",
+        });
+        return { review_id: item.id };
+      }),
     list: publicProcedure
       .input(z.object({ cursor: z.number().int().positive().optional() }).optional())
       .query(async ({ ctx, input }) => {
