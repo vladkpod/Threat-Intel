@@ -1,8 +1,19 @@
 import { z } from "zod";
 import { reconstruct, ReconstructionInput, ReconstructionOutput } from "@engine";
 import { fetchSectorView } from "@sector";
-import { createReviewItem, getStalenessCaveatsForIncident } from "@store";
+import {
+  createReviewItem,
+  getStalenessCaveatsForIncident,
+  upsertClient,
+  createClientAssessment,
+  getClientAssessment,
+  updateClientAssessmentAnswers,
+  listClientAssessmentsForReconstruction,
+  listPendingReviews,
+} from "@store";
 import { router, publicProcedure } from "./trpc.js";
+
+const AnswerValue = z.enum(["yes", "partial", "no"]);
 
 export const appRouter = router({
   reconstruction: router({
@@ -110,6 +121,86 @@ export const appRouter = router({
           v.sectors.find((s) => s.sector === input.sector) ?? null,
         ),
       ),
+  }),
+  assessment: router({
+    create: publicProcedure
+      .input(z.object({
+        client_name: z.string().min(1).max(256),
+        client_sector: z.string().optional(),
+        tech_stack_notes: z.string().max(500).optional(),
+        reconstruction_id: z.number().int().positive(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const client = await upsertClient(ctx.db, {
+          name: input.client_name,
+          sector: input.client_sector ?? null,
+          tech_stack_notes: input.tech_stack_notes ?? null,
+        });
+        const assessment = await createClientAssessment(
+          ctx.db,
+          client.id,
+          input.reconstruction_id,
+        );
+        return { assessment_id: assessment.id, client_id: client.id };
+      }),
+    get: publicProcedure
+      .input(z.object({ id: z.number().int().positive() }))
+      .query(async ({ ctx, input }) => {
+        const assessment = await getClientAssessment(ctx.db, input.id);
+        if (!assessment) return null;
+        const clientRes = await ctx.db.query<{
+          id: number;
+          name: string;
+          sector: string | null;
+          tech_stack_notes: string | null;
+        }>(
+          `SELECT id, name, sector, tech_stack_notes FROM clients WHERE id = $1`,
+          [assessment.client_id],
+        );
+        const client = clientRes.rows[0] ?? null;
+        const reconRes = await ctx.db.query<{
+          id: number;
+          result_json: unknown;
+          incident_name: string;
+        }>(
+          `SELECT rr.id, rr.result_json, i.name AS incident_name
+           FROM reconstruction_results rr
+           JOIN incidents i ON i.id = rr.incident_id
+           WHERE rr.id = $1`,
+          [assessment.reconstruction_id],
+        );
+        const recon = reconRes.rows[0] ?? null;
+        if (!recon) return null;
+        return {
+          assessment,
+          client,
+          result: ReconstructionOutput.parse(recon.result_json),
+          incident_name: recon.incident_name,
+        };
+      }),
+    saveAnswers: publicProcedure
+      .input(z.object({
+        id: z.number().int().positive(),
+        answers: z.record(z.string(), AnswerValue),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const updated = await updateClientAssessmentAnswers(
+          ctx.db,
+          input.id,
+          input.answers as Record<string, "yes" | "partial" | "no">,
+        );
+        return updated;
+      }),
+    listForReconstruction: publicProcedure
+      .input(z.object({ reconstruction_id: z.number().int().positive() }))
+      .query(async ({ ctx, input }) => {
+        return listClientAssessmentsForReconstruction(ctx.db, input.reconstruction_id);
+      }),
+  }),
+  review: router({
+    list: publicProcedure.query(async ({ ctx }) => {
+      return listPendingReviews(ctx.db);
+    }),
   }),
 });
 

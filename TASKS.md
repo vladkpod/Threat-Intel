@@ -148,7 +148,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
   `created_at`, `updated_at`.
   AC: migration runs cleanly; tables exist with correct constraints.
 
-- [ ] **New Assessment flow** — add a "New Assessment" button to the
+- [x] **New Assessment flow** — add a "New Assessment" button to the
   reconstruction DetailPage (alongside "Export Report"). Clicking opens a
   modal (shadcn Dialog) with three fields: Client name (text input),
   Client sector (select, seeded from the same sector map used for inference),
@@ -158,7 +158,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
   navigates to the new AssessmentPage. No page reload.
   AC: modal opens, form submits, assessment row created, navigates to assessment.
 
-- [ ] **AssessmentPage** — new page (`pages/AssessmentPage.tsx`), reached from
+- [x] **AssessmentPage** — new page (`pages/AssessmentPage.tsx`), reached from
   the detail view. Renders: client name and sector as the headline;
   the incident name as subtitle; the self-assessment questionnaire with
   yes/partial/no toggle buttons (not dropdowns — three visible buttons per
@@ -173,7 +173,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
   page reload (loaded from DB); verdict correctly identifies earliest answered
   step with a 'yes' PREVENT control as the break point.
 
-- [ ] **Gap analysis panel** — below the live verdict on AssessmentPage,
+- [x] **Gap analysis panel** — below the live verdict on AssessmentPage,
   render a gap analysis: one row per attack chain step, showing:
   step plain-English description, the breaking control for that step,
   and a status derived from the client's answer (green tick if yes,
@@ -184,7 +184,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
 
 ### P1 — Admin review UI (makes the queue flow usable)
 
-- [ ] **Admin page** — add a third nav item "Admin" visible only when
+- [x] **Admin page** — add a third nav item "Admin" visible only when
   `VITE_ADMIN_API_KEY` env var is set (dev/internal only — not shown to
   clients). The AdminPage (`pages/AdminPage.tsx`) shows a table of pending
   `review_queue` items: incident name (from `candidate_title`), submitted date,
@@ -195,7 +195,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
   AC: pending items appear in the table; approve/reject call the correct
   endpoints with the API key header; row disappears after action.
 
-- [ ] **tRPC `review.list` procedure** — add `review.list` to the router,
+- [x] **tRPC `review.list` procedure** — add `review.list` to the router,
   returning all `review_queue` rows with `status=pending`, joined to
   `incidents` for the name. Used by AdminPage.
   AC: procedure returns correct rows; empty array if no pending items.

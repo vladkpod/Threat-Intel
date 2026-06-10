@@ -7,17 +7,55 @@ import { EvidenceBadge } from "@/components/EvidenceBadge.js";
 import { SeverityBadge } from "@/components/SeverityBadge.js";
 import { Card, CardContent } from "@/components/ui/card.js";
 import { Button } from "@/components/ui/button.js";
+import { Input } from "@/components/ui/input.js";
+import { Label } from "@/components/ui/label.js";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog.js";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select.js";
+import { Textarea } from "@/components/ui/textarea.js";
 import { IncidentReportPDF } from "@/components/IncidentReportPDF.js";
 import { pdf } from "@react-pdf/renderer";
+import { SECTOR_OPTIONS } from "@/lib/sectors.js";
 import type { ReconstructionOutput } from "../../../engine/src/schema.js";
 
 interface Props {
   incidentId: number;
   onBack: () => void;
+  onOpenAssessment: (assessmentId: number) => void;
 }
 
-export function DetailPage({ incidentId, onBack }: Props) {
+export function DetailPage({ incidentId, onBack, onOpenAssessment }: Props) {
   const query = trpc.reconstruction.get.useQuery({ id: incidentId });
+  const [exporting, setExporting] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [clientName, setClientName] = useState("");
+  const [clientSector, setClientSector] = useState("");
+  const [techNotes, setTechNotes] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const createAssessment = trpc.assessment.create.useMutation({
+    onSuccess: (data) => {
+      setModalOpen(false);
+      setClientName("");
+      setClientSector("");
+      setTechNotes("");
+      onOpenAssessment(data.assessment_id);
+    },
+    onError: (err) => {
+      setFormError(err.message);
+    },
+  });
 
   if (query.isLoading) {
     return (
@@ -51,8 +89,6 @@ export function DetailPage({ incidentId, onBack }: Props) {
     );
   }
 
-  const [exporting, setExporting] = useState(false);
-
   const data = query.data;
   const out = data?.result as unknown as ReconstructionOutput;
   const incidentDate = data?.incident_date ?? null;
@@ -75,6 +111,21 @@ export function DetailPage({ incidentId, onBack }: Props) {
     }
   }
 
+  function handleSubmitAssessment(e: React.FormEvent) {
+    e.preventDefault();
+    setFormError(null);
+    if (!clientName.trim()) {
+      setFormError("Client name is required.");
+      return;
+    }
+    createAssessment.mutate({
+      client_name: clientName.trim(),
+      client_sector: clientSector || undefined,
+      tech_stack_notes: techNotes || undefined,
+      reconstruction_id: incidentId,
+    });
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b px-6 py-4">
@@ -86,9 +137,14 @@ export function DetailPage({ incidentId, onBack }: Props) {
             <h1 className="text-xl font-bold tracking-tight">{out.incident.name}</h1>
             <SeverityBadge result={out.verdict.result} />
           </div>
-          <Button variant="outline" size="sm" onClick={() => void handleExport()} disabled={exporting}>
-            {exporting ? "Generating…" : "Export Report"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setModalOpen(true)}>
+              New Assessment
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => void handleExport()} disabled={exporting}>
+              {exporting ? "Generating…" : "Export Report"}
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -197,6 +253,73 @@ export function DetailPage({ incidentId, onBack }: Props) {
           </section>
         )}
       </main>
+
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New Client Assessment</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmitAssessment} className="space-y-4 mt-2">
+            <div className="space-y-2">
+              <Label htmlFor="client-name">Client name *</Label>
+              <Input
+                id="client-name"
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                placeholder="Acme Corp"
+                autoFocus
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="client-sector">Sector</Label>
+              <Select value={clientSector} onValueChange={setClientSector}>
+                <SelectTrigger id="client-sector">
+                  <SelectValue placeholder="Select sector…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SECTOR_OPTIONS.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tech-notes">Technology stack notes</Label>
+              <Textarea
+                id="tech-notes"
+                value={techNotes}
+                onChange={(e) => setTechNotes(e.target.value)}
+                placeholder="e.g. Microsoft 365, Azure AD, on-prem Active Directory…"
+                maxLength={500}
+                rows={3}
+              />
+              <p className="text-xs text-muted-foreground text-right">{techNotes.length}/500</p>
+            </div>
+
+            {formError && (
+              <p className="text-sm text-destructive">{formError}</p>
+            )}
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setModalOpen(false)}
+                disabled={createAssessment.isPending}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createAssessment.isPending}>
+                {createAssessment.isPending ? "Creating…" : "Start Assessment"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

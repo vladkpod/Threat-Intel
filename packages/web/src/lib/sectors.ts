@@ -1,0 +1,17 @@
+export const SECTOR_OPTIONS = [
+  "Retail",
+  "Public Sector",
+  "Financial Services",
+  "Healthcare",
+  "Energy & Utilities",
+  "Education",
+  "Technology",
+  "Manufacturing",
+  "Legal & Professional Services",
+  "Telecommunications",
+  "Hospitality & Tourism",
+  "Media & Entertainment",
+  "Transportation & Logistics",
+  "Charity & Non-profit",
+  "Other",
+] as const;
