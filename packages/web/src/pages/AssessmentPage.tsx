@@ -71,6 +71,13 @@ export function AssessmentPage({ assessmentId, onBack }: Props) {
     }
   }, [query.data]);
 
+  // Cancel pending debounced save on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, []);
+
   const persistAnswers = useCallback(
     (answers: AnswerMap) => {
       saveAnswers.mutate(
