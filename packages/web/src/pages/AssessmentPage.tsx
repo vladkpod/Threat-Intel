@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button.js";
 import { Card, CardContent } from "@/components/ui/card.js";
 import { CheckCircle2, AlertTriangle, XCircle, Minus } from "lucide-react";
 import { cn } from "@/lib/utils.js";
+import { IncidentReportPDF } from "@/components/IncidentReportPDF.js";
+import { pdf } from "@react-pdf/renderer";
 import type { ReconstructionOutput, AttackChainStep } from "../../../engine/src/schema.js";
 import type { AnswerMap, AssessmentAnswer } from "../../../store/src/types.js";
 
@@ -56,6 +58,7 @@ export function AssessmentPage({ assessmentId, onBack }: Props) {
 
   const [localAnswers, setLocalAnswers] = useState<AnswerMap>({});
   const [savedAt, setSavedAt] = useState<Date | null>(null);
+  const [exporting, setExporting] = useState(false);
   const initialised = useRef(false);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -76,6 +79,36 @@ export function AssessmentPage({ assessmentId, onBack }: Props) {
     },
     [assessmentId, saveAnswers],
   );
+
+  async function handleExport() {
+    if (!query.data) return;
+    setExporting(true);
+    try {
+      const { client, result, incident_name: incidentName } = query.data;
+      const out = result as unknown as ReconstructionOutput;
+      const blob = await pdf(
+        <IncidentReportPDF
+          out={out}
+          incidentDate={null}
+          clientAssessment={{
+            client_name: client?.name ?? "Unknown",
+            client_sector: client?.sector ?? null,
+            tech_stack_notes: client?.tech_stack_notes ?? null,
+            assessment_date: new Date().toISOString(),
+            answers: localAnswers,
+          }}
+        />,
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${(client?.name ?? "client").replace(/\s+/g, "_")}_${incidentName.replace(/\s+/g, "_")}_assessment.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  }
 
   function handleToggle(stepKey: string, value: AnswerToggle) {
     const updated = { ...localAnswers, [stepKey]: value };
@@ -133,11 +166,16 @@ export function AssessmentPage({ assessmentId, onBack }: Props) {
             </h1>
             <p className="text-sm text-muted-foreground">{incident_name}</p>
           </div>
-          {savedAt && (
-            <p className="text-xs text-muted-foreground">
-              Saved {savedAt.toLocaleTimeString()}
-            </p>
-          )}
+          <div className="flex items-center gap-2 shrink-0">
+            {savedAt && (
+              <p className="text-xs text-muted-foreground">
+                Saved {savedAt.toLocaleTimeString()}
+              </p>
+            )}
+            <Button variant="outline" size="sm" onClick={() => void handleExport()} disabled={exporting}>
+              {exporting ? "Generating…" : "Export PDF"}
+            </Button>
+          </div>
         </div>
       </header>
 

@@ -202,7 +202,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
 
 ### P2 — Client-personalised PDF report
 
-- [ ] **Assessment PDF** — extend the existing PDF export to accept an optional
+- [x] **Assessment PDF** — extend the existing PDF export to accept an optional
   `clientAssessment` prop. When a client assessment is loaded (from AssessmentPage),
   the PDF becomes client-personalised: replace the generic header with
   "[Client Name] — Threat Assessment Report", add a cover section showing
@@ -216,7 +216,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
 
 ### P2 — Sector brief export
 
-- [ ] **Sector brief PDF** — add an "Export Brief" button to SectorPage,
+- [x] **Sector brief PDF** — add an "Export Brief" button to SectorPage,
   visible per sector card. Generates a 1-2 page PDF titled
   "Threat Intelligence Brief — [Sector] — [date]". Content:
   paragraph 1 — sector threat summary (top actor, top technique, KEV count,
@@ -229,7 +229,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
 
 ### P2 — Visual attack chain
 
-- [ ] **Visual chain flow** — replace the stacked step cards in the
+- [x] **Visual chain flow** — replace the stacked step cards in the
   reconstruction detail with a visual vertical flow: each step is a node
   connected to the next by a solid vertical line with an arrow. Left side
   of each node shows the MITRE tactic phase label (plain English, e.g.
@@ -243,7 +243,7 @@ The loop only terminates when a review pass finds zero new gaps to add.
 
 ### P2 — Feed search and filter
 
-- [ ] **Feed filter bar** — add a filter bar below the "Incident Feed" header.
+- [x] **Feed filter bar** — add a filter bar below the "Incident Feed" header.
   Three filters: Sector (select, options derived from distinct sectors in the
   feed data), Severity (select: ALL / HIGH / MEDIUM / LOW), Actor (text input,
   fuzzy match on actor name). Filters apply client-side against the loaded

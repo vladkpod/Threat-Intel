@@ -6,6 +6,7 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 import type { ReconstructionOutput } from "../../../engine/src/schema.js";
+import type { AnswerMap } from "../../../store/src/types.js";
 
 const styles = StyleSheet.create({
   page: { padding: 48, fontSize: 10, fontFamily: "Helvetica", color: "#1a1a1a" },
@@ -56,11 +57,37 @@ const styles = StyleSheet.create({
     borderLeftColor: "#f59e0b",
   },
   verdictLabel: { fontSize: 14, fontFamily: "Helvetica-Bold", marginBottom: 4 },
+  coverBox: {
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 4,
+    marginBottom: 20,
+    backgroundColor: "#f9fafb",
+  },
+  gapRow: {
+    marginBottom: 6,
+    padding: 6,
+    borderLeftWidth: 3,
+  },
+  gapRowGreen: { borderLeftColor: "#16a34a" },
+  gapRowAmber: { borderLeftColor: "#d97706" },
+  gapRowRed: { borderLeftColor: "#dc2626", backgroundColor: "#fff1f2" },
+  gapRowGrey: { borderLeftColor: "#9ca3af", backgroundColor: "#f9fafb" },
+  priorityBox: {
+    marginBottom: 8,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: "#fca5a5",
+    backgroundColor: "#fff1f2",
+    borderRadius: 3,
+  },
 });
 
-function formatDate(dateStr: string | null): string {
+function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return "Date unknown";
   return new Date(dateStr).toLocaleDateString("en-GB", {
+    day: "numeric",
     month: "long",
     year: "numeric",
   });
@@ -79,30 +106,88 @@ function verdictLabel(result: ReconstructionOutput["verdict"]["result"]): string
   }
 }
 
+function answerLabel(answer: string | undefined): string {
+  if (answer === "yes") return "Yes ✓";
+  if (answer === "partial") return "Partial ~";
+  if (answer === "no") return "No ✗";
+  return "Unanswered";
+}
+
+export interface ClientAssessmentData {
+  client_name: string;
+  client_sector: string | null;
+  tech_stack_notes: string | null;
+  assessment_date: string;
+  answers: AnswerMap;
+}
+
 interface Props {
   out: ReconstructionOutput;
   incidentDate: string | null;
+  clientAssessment?: ClientAssessmentData;
 }
 
-export function IncidentReportPDF({ out, incidentDate }: Props) {
+export function IncidentReportPDF({ out, incidentDate, clientAssessment }: Props) {
+  const isClientReport = clientAssessment !== undefined;
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         {/* Section 1: Title, date, actor */}
-        <Text style={styles.title}>{out.incident.name}</Text>
+        <Text style={styles.title}>
+          {isClientReport
+            ? `${clientAssessment.client_name} — Threat Assessment Report`
+            : out.incident.name}
+        </Text>
         <Text style={styles.subtitle}>
-          Threat Intelligence Reconstruction Report · {formatDate(incidentDate)}
+          {isClientReport
+            ? `Incident: ${out.incident.name} · ${formatDate(incidentDate)}`
+            : `Threat Intelligence Reconstruction Report · ${formatDate(incidentDate)}`}
         </Text>
 
-        <View style={styles.row}>
-          <Text style={styles.label}>Actor:</Text>
-          <Text style={styles.value}>{out.incident.actor}</Text>
-        </View>
-        {incidentDate && (
-          <View style={styles.row}>
-            <Text style={styles.label}>Date:</Text>
-            <Text style={styles.value}>{formatDate(incidentDate)}</Text>
+        {/* Client cover block */}
+        {isClientReport && (
+          <View style={styles.coverBox}>
+            <View style={styles.row}>
+              <Text style={styles.label}>Client:</Text>
+              <Text style={styles.value}>{clientAssessment.client_name}</Text>
+            </View>
+            {clientAssessment.client_sector && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Sector:</Text>
+                <Text style={styles.value}>{clientAssessment.client_sector}</Text>
+              </View>
+            )}
+            {clientAssessment.tech_stack_notes && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Technology:</Text>
+                <Text style={styles.value}>{clientAssessment.tech_stack_notes}</Text>
+              </View>
+            )}
+            <View style={styles.row}>
+              <Text style={styles.label}>Assessed:</Text>
+              <Text style={styles.value}>{formatDate(clientAssessment.assessment_date)}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Prepared by:</Text>
+              <Text style={styles.value}>Waterstons</Text>
+            </View>
           </View>
+        )}
+
+        {!isClientReport && (
+          <>
+            <View style={styles.row}>
+              <Text style={styles.label}>Actor:</Text>
+              <Text style={styles.value}>{out.incident.actor}</Text>
+            </View>
+            {incidentDate && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Date:</Text>
+                <Text style={styles.value}>{formatDate(incidentDate)}</Text>
+              </View>
+            )}
+          </>
         )}
         <Text style={[styles.paragraph, { marginTop: 8 }]}>{out.incident.summary}</Text>
         {out.incident.source_quality_note && (
@@ -162,34 +247,106 @@ export function IncidentReportPDF({ out, incidentDate }: Props) {
           </View>
         ))}
 
-        {/* Section 4: Self-assessment questions */}
-        <Text style={styles.sectionHeading}>Self-Assessment Questionnaire</Text>
-        <Text style={[styles.paragraph, { color: "#555" }]}>
-          Complete the boxes below to assess your organisation's exposure to this attack pattern.
-        </Text>
-        {out.self_assessment.map((entry, i) => (
-          <View key={i} style={styles.questionBox}>
-            <Text style={styles.questionText}>
-              Q{i + 1}. {entry.question}
+        {/* Client-only: Gap Analysis */}
+        {isClientReport && (
+          <>
+            <Text style={styles.sectionHeading}>Gap Analysis</Text>
+            <Text style={[styles.paragraph, { color: "#555" }]}>
+              Status of each attack chain step based on your assessment responses.
             </Text>
-            <View style={styles.row}>
-              <Text style={{ color: "#555", fontSize: 9, flex: 1 }}>
-                Resilient: {entry.resilient_looks_like}
-              </Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={{ color: "#555", fontSize: 9, flex: 1 }}>
-                Vulnerable: {entry.vulnerable_looks_like}
-              </Text>
-            </View>
-            <Text style={{ fontSize: 9, color: "#888", marginTop: 3 }}>
-              Your answer:
-            </Text>
-            <View style={styles.answerBox} />
-          </View>
-        ))}
+            {out.attack_chain.map((step) => {
+              const answer = clientAssessment.answers[String(step.step)];
+              const preventControl = step.breaking_controls.find((c) => c.axis === "prevent");
+              const controlText = preventControl?.description
+                ?? step.breaking_controls[0]?.description
+                ?? "No mapped control";
+              const rowStyle =
+                answer === "yes" ? styles.gapRowGreen
+                : answer === "partial" ? styles.gapRowAmber
+                : answer === "no" ? styles.gapRowRed
+                : styles.gapRowGrey;
+              return (
+                <View key={step.step} style={[styles.gapRow, rowStyle]}>
+                  <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 9 }}>
+                    Step {step.step}: {answerLabel(answer)}
+                  </Text>
+                  <Text style={{ fontSize: 9, marginTop: 1 }}>
+                    {stripSourceSuffix(step.what_happened)}
+                  </Text>
+                  <Text style={{ fontSize: 9, color: "#555", marginTop: 1 }}>
+                    Control: {controlText}
+                  </Text>
+                </View>
+              );
+            })}
 
-        {/* Section 5: Caveats (repeated at end for prominence) */}
+            {/* Priority Actions */}
+            <Text style={styles.sectionHeading}>Priority Actions</Text>
+            <Text style={[styles.paragraph, { color: "#555" }]}>
+              Top unaddressed steps requiring attention, in attack chain order.
+            </Text>
+            {(() => {
+              const gaps = out.attack_chain
+                .filter((s) => {
+                  const a = clientAssessment.answers[String(s.step)];
+                  return a === "no" || a === undefined;
+                })
+                .slice(0, 3);
+              if (gaps.length === 0) {
+                return <Text style={styles.paragraph}>No critical gaps identified.</Text>;
+              }
+              return gaps.map((step, i) => {
+                const preventControl = step.breaking_controls.find((c) => c.axis === "prevent");
+                return (
+                  <View key={step.step} style={styles.priorityBox}>
+                    <Text style={{ fontFamily: "Helvetica-Bold", marginBottom: 2 }}>
+                      {i + 1}. Step {step.step}: {step.attack_tactic}
+                    </Text>
+                    <Text style={{ fontSize: 9 }}>{stripSourceSuffix(step.what_happened)}</Text>
+                    {preventControl && (
+                      <Text style={{ fontSize: 9, color: "#555", marginTop: 2 }}>
+                        Recommended control: {preventControl.description} ({preventControl.framework_ref})
+                      </Text>
+                    )}
+                  </View>
+                );
+              });
+            })()}
+          </>
+        )}
+
+        {/* Section 4: Self-assessment questions (generic only) */}
+        {!isClientReport && (
+          <>
+            <Text style={styles.sectionHeading}>Self-Assessment Questionnaire</Text>
+            <Text style={[styles.paragraph, { color: "#555" }]}>
+              Complete the boxes below to assess your organisation's exposure to this attack pattern.
+            </Text>
+            {out.self_assessment.map((entry, i) => (
+              <View key={i} style={styles.questionBox}>
+                <Text style={styles.questionText}>
+                  Q{i + 1}. {entry.question}
+                </Text>
+                <View style={styles.row}>
+                  <Text style={{ color: "#555", fontSize: 9, flex: 1 }}>
+                    Resilient: {entry.resilient_looks_like}
+                  </Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={{ color: "#555", fontSize: 9, flex: 1 }}>
+                    Vulnerable: {entry.vulnerable_looks_like}
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 9, color: "#888", marginTop: 3 }}>
+                  Your answer:
+                </Text>
+                <View style={styles.answerBox} />
+              </View>
+            ))}
+          </>
+        )}
+
+        {/* Section 5: Caveats */}
         {out.verdict.caveats.length > 0 && (
           <>
             <Text style={styles.sectionHeading}>Important Caveats</Text>

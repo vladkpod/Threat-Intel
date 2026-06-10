@@ -1,12 +1,16 @@
+import { useState } from "react";
 import { trpc } from "@/lib/trpc.js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.js";
 import { Badge } from "@/components/ui/badge.js";
+import { Button } from "@/components/ui/button.js";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion.js";
+import { SectorBriefPDF } from "@/components/SectorBriefPDF.js";
+import { pdf } from "@react-pdf/renderer";
 import { techniqueDisplayName } from "@/lib/technique-names.js";
 import type { SectorSummary } from "../../../sector/src/schema.js";
 
@@ -27,14 +31,41 @@ function TechniqueChips({ techniques }: { techniques: { technique_id: string; co
 }
 
 function SectorCard({ summary }: { summary: SectorSummary }) {
+  const [exporting, setExporting] = useState(false);
   const topKev = summary.recent_kevs[0] ?? null;
+
+  const sectorDisplayName = summary.sector
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+
+  async function handleExportBrief() {
+    setExporting(true);
+    try {
+      const briefDate = new Date().toLocaleDateString("en-GB", {
+        month: "long",
+        year: "numeric",
+      });
+      const blob = await pdf(
+        <SectorBriefPDF summary={summary} briefDate={briefDate} />,
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Threat_Brief_${summary.sector}_${new Date().toISOString().slice(0, 10)}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  }
 
   return (
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-3">
-          <CardTitle className="text-base capitalize">{summary.sector.replace(/-/g, " ")}</CardTitle>
-          <div className="flex gap-2 shrink-0">
+          <CardTitle className="text-base capitalize">{sectorDisplayName}</CardTitle>
+          <div className="flex gap-2 shrink-0 flex-wrap justify-end">
             <Badge variant="secondary">{summary.threat_group_count} groups</Badge>
             <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
               {summary.kev_count} KEVs
@@ -124,6 +155,16 @@ function SectorCard({ summary }: { summary: SectorSummary }) {
             </AccordionItem>
           )}
         </Accordion>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full"
+          onClick={() => void handleExportBrief()}
+          disabled={exporting}
+        >
+          {exporting ? "Generating…" : "Export Brief"}
+        </Button>
       </CardContent>
     </Card>
   );
@@ -162,11 +203,25 @@ export function SectorPage() {
               {query.data.sectors.length} sectors · generated{" "}
               {new Date(query.data.generated_at).toLocaleString()}
             </p>
-            <div className="grid gap-4 md:grid-cols-2">
-              {query.data.sectors.map((sector) => (
-                <SectorCard key={sector.sector} summary={sector} />
-              ))}
-            </div>
+            {query.data.sectors.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
+                <p className="text-lg font-medium">No sector data available</p>
+                <p className="text-sm text-muted-foreground">
+                  Sector intelligence is generated from ATT&CK group data. Check network access
+                  and try refreshing.
+                </p>
+                <Button variant="outline" onClick={() => void query.refetch()}>
+                  Retry
+                </Button>
+              </div>
+            )}
+            {query.data.sectors.length > 0 && (
+              <div className="grid gap-4 md:grid-cols-2">
+                {query.data.sectors.map((sector) => (
+                  <SectorCard key={sector.sector} summary={sector} />
+                ))}
+              </div>
+            )}
           </>
         )}
 

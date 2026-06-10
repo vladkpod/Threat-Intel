@@ -1,12 +1,45 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc.js";
 import { IncidentFeedCard } from "@/components/IncidentFeedCard.js";
 import { Button } from "@/components/ui/button.js";
 import { Card, CardContent } from "@/components/ui/card.js";
+import { Input } from "@/components/ui/input.js";
 import { Textarea } from "@/components/ui/textarea.js";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select.js";
+import { Newspaper } from "lucide-react";
 
 interface Props {
   onSelectIncident: (id: number) => void;
+}
+
+type FeedItem = {
+  id: number;
+  incident_name: string;
+  incident_date: string | null;
+  sector: string | null;
+  result_json: {
+    verdict: { result: string };
+    incident: { actor: string };
+  };
+  created_at: string;
+};
+
+function deriveActorName(item: FeedItem): string {
+  return (item.result_json as { incident?: { actor?: string } })?.incident?.actor ?? "";
+}
+
+function deriveSeverity(item: FeedItem): "HIGH" | "MEDIUM" | "LOW" | "UNKNOWN" {
+  const result = (item.result_json as { verdict?: { result?: string } })?.verdict?.result ?? "";
+  if (result === "would_likely_succeed") return "HIGH";
+  if (result === "would_likely_fail") return "LOW";
+  if (result.startsWith("indeterminate")) return "MEDIUM";
+  return "UNKNOWN";
 }
 
 export function FeedPage({ onSelectIncident }: Props) {
@@ -16,14 +49,19 @@ export function FeedPage({ onSelectIncident }: Props) {
   const [submitted, setSubmitted] = useState(false);
 
   const [cursor, setCursor] = useState<number | undefined>(undefined);
-  const [allItems, setAllItems] = useState<NonNullable<ReturnType<typeof trpc.reconstruction.list.useQuery>["data"]>["items"]>([]);
+  const [allItems, setAllItems] = useState<FeedItem[]>([]);
+
+  // Filter state
+  const [filterSector, setFilterSector] = useState("ALL");
+  const [filterSeverity, setFilterSeverity] = useState("ALL");
+  const [filterActor, setFilterActor] = useState("");
 
   const query = trpc.reconstruction.list.useQuery({ cursor }, {
     onSuccess: (data) => {
       if (cursor === undefined) {
-        setAllItems(data.items);
+        setAllItems(data.items as FeedItem[]);
       } else {
-        setAllItems((prev) => [...prev, ...data.items]);
+        setAllItems((prev) => [...prev, ...data.items as FeedItem[]]);
       }
     },
   });
@@ -55,6 +93,35 @@ export function FeedPage({ onSelectIncident }: Props) {
     setParseError(null);
   }
 
+  function clearFilters() {
+    setFilterSector("ALL");
+    setFilterSeverity("ALL");
+    setFilterActor("");
+  }
+
+  // Derive distinct sectors from loaded items
+  const distinctSectors = useMemo(() => {
+    const seen = new Set<string>();
+    for (const item of allItems) {
+      if (item.sector) seen.add(item.sector);
+    }
+    return Array.from(seen).sort();
+  }, [allItems]);
+
+  // Client-side filtering
+  const filteredItems = useMemo(() => {
+    return allItems.filter((item) => {
+      if (filterSector !== "ALL" && item.sector !== filterSector) return false;
+      if (filterSeverity !== "ALL" && deriveSeverity(item) !== filterSeverity) return false;
+      if (filterActor) {
+        const actor = deriveActorName(item).toLowerCase();
+        if (!actor.includes(filterActor.toLowerCase())) return false;
+      }
+      return true;
+    });
+  }, [allItems, filterSector, filterSeverity, filterActor]);
+
+  const hasActiveFilters = filterSector !== "ALL" || filterSeverity !== "ALL" || filterActor !== "";
   const mostRecent = allItems[0];
 
   return (
@@ -111,6 +178,51 @@ export function FeedPage({ onSelectIncident }: Props) {
           </Card>
         )}
 
+        {/* Filter bar */}
+        {allItems.length > 0 && (
+          <div className="flex flex-wrap gap-2 items-end">
+            <div className="flex-1 min-w-[140px]">
+              <Select value={filterSector} onValueChange={setFilterSector}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder="Sector" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All sectors</SelectItem>
+                  {distinctSectors.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex-1 min-w-[140px]">
+              <Select value={filterSeverity} onValueChange={setFilterSeverity}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder="Severity" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All severities</SelectItem>
+                  <SelectItem value="HIGH">High</SelectItem>
+                  <SelectItem value="MEDIUM">Medium</SelectItem>
+                  <SelectItem value="LOW">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex-1 min-w-[160px]">
+              <Input
+                className="h-9 text-sm"
+                placeholder="Filter by actor…"
+                value={filterActor}
+                onChange={(e) => setFilterActor(e.target.value)}
+              />
+            </div>
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9">
+                Clear filters
+              </Button>
+            )}
+          </div>
+        )}
+
         {query.error && (
           <p className="text-sm text-destructive">Error: {query.error.message}</p>
         )}
@@ -120,24 +232,37 @@ export function FeedPage({ onSelectIncident }: Props) {
         )}
 
         {allItems.length === 0 && !query.isLoading && !showForm && (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              <p className="text-sm">No incidents reconstructed yet.</p>
-              <p className="text-xs mt-1">Use "Add Incident" to get started.</p>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
+            <Newspaper className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
+            <p className="text-lg font-medium">No incidents yet</p>
+            <p className="text-sm text-muted-foreground">
+              Incidents appear here after they are submitted and approved through the admin flow.
+            </p>
+            <Button variant="outline" onClick={handleToggleForm}>
+              Add Incident
+            </Button>
+          </div>
         )}
 
-        {allItems.length > 0 && (
+        {filteredItems.length === 0 && allItems.length > 0 && (
+          <div className="text-center py-12 text-muted-foreground">
+            <p className="text-sm">No incidents match the current filters.</p>
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="mt-2">
+              Clear filters
+            </Button>
+          </div>
+        )}
+
+        {filteredItems.length > 0 && (
           <div className="space-y-4">
-            {allItems.map((item) => (
+            {filteredItems.map((item) => (
               <IncidentFeedCard
                 key={item.id}
                 id={item.id}
                 incidentName={item.incident_name}
                 incidentDate={item.incident_date ?? null}
                 sector={item.sector ?? null}
-                result={item.result_json}
+                result={item.result_json as Parameters<typeof IncidentFeedCard>[0]["result"]}
                 onClick={onSelectIncident}
               />
             ))}
